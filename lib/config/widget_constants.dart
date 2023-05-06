@@ -1,0 +1,1 @@
+const String accountImage = 'assets/images/account_circle_black_48.png';
