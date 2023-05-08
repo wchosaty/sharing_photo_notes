@@ -6,12 +6,15 @@ class ComTextField extends StatelessWidget {
   late final String labelText;
   late bool obscureText;
   TextInputType keyboardType;
+  late TextEditingController controller;
 
-  ComTextField(
-      {required this.labelText,
-      this.fontSize = 18.0,
-      this.obscureText = false,
-        this.keyboardType = TextInputType.multiline});
+  ComTextField({
+    required this.labelText,
+    this.fontSize = 18.0,
+    this.obscureText = false,
+    this.keyboardType = TextInputType.multiline,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +23,7 @@ class ComTextField extends StatelessWidget {
         maxLength: 30,
         obscureText: obscureText,
         keyboardType: keyboardType,
+        controller: controller,
         decoration: InputDecoration(
             label: Text(
           labelText,
