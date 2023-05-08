@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sharing_photo_notes/screens/login_page.dart';
+import 'package:sharing_photo_notes/pages/login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

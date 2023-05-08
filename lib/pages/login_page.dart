@@ -4,10 +4,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sharing_photo_notes/ServerConnection/http_connection.dart';
 import 'package:sharing_photo_notes/config/http_constants.dart';
+import 'package:sharing_photo_notes/config/model_constants.dart';
 import 'package:sharing_photo_notes/config/widget_constants.dart';
 import 'package:sharing_photo_notes/models/user.dart';
+import 'package:sharing_photo_notes/pages/personal_page.dart';
+import 'package:sharing_photo_notes/utils/http_connection.dart';
+import 'package:sharing_photo_notes/utils/log_data.dart';
 import 'package:sharing_photo_notes/widgets/com_text_field.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,7 +21,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  static const tag = 'tag LoginPage';
   var image;
+  String systemMessage = "";
   TextEditingController userNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
@@ -42,10 +47,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    var screenSide = MediaQuery
-        .of(context)
-        .size
-        .width * 0.1;
+    var screenSide = MediaQuery.of(context).size.width * 0.1;
     return Container(
       alignment: Alignment.center,
       child: Padding(
@@ -64,16 +66,16 @@ class _LoginPageState extends State<LoginPage> {
                   padding: EdgeInsets.all(20),
                   child: image != null
                       ? Image.file(
-                    image,
-                    width: 70.0,
-                    height: 70.0,
-                    fit: BoxFit.fitHeight,
-                  )
+                          image,
+                          width: 70.0,
+                          height: 70.0,
+                          fit: BoxFit.fitHeight,
+                        )
                       : Image.asset(
-                    accountImage,
-                    fit: BoxFit.cover,
-                    color: Colors.black,
-                  ),
+                          accountImage,
+                          fit: BoxFit.cover,
+                          color: Colors.black,
+                        ),
                 ),
               ),
               ComTextField(
@@ -100,9 +102,12 @@ class _LoginPageState extends State<LoginPage> {
                         checkKeyInData(passwordController.text) &&
                         checkKeyInData(nicknameController.text)) {
                       signUp();
-                      saveUser();
                     }
                   }),
+              Text(
+                systemMessage,
+                style: TextStyle(color: Colors.black87),
+              ),
             ],
           ),
         ),
@@ -127,14 +132,33 @@ class _LoginPageState extends State<LoginPage> {
     return returnVal;
   }
 
-  void signUp() {
-    String user = userNameController.text.trim();
+  void signUp() async {
+    String username = userNameController.text.trim();
     String pass = passwordController.text.trim();
     String nick = nicknameController.text.trim();
-    String json = jsonEncode( User(username: user,password: pass,nickname: nick) );
-    var backJson = HttpConnection().toServer(urlIp, urlServerUserPath, json);
-    ///測試
-    print('backString : $backJson');
+    User user = User(username: username, password: pass, nickname: nick, status: statusPrivate);
+    String json = jsonEncode(user);
+    Map<String, String> map = {sAction: sInsert, sContent: sUser};
+    LogData().dd(tag, "json", json);
+    String back = await HttpConnection().toServer(
+        ip: urlIp, path: urlServerUserPath, json: json, headerMap: map);
+
+    ///驗證
+    if (back.isNotEmpty) {
+      String token = jsonEncode(back);
+      LogData().dd(tag, "token", token);
+
+      ///儲存
+      saveUser(token);
+      clearTextField();
+      systemMessage = "";
+      passwordController.text = "";
+      Navigator.of(context).pushNamed('/Personal',arguments: user );
+    } else {
+      systemMessage = sFail;
+    }
+    setState(() {});
+
   }
 
   void logIn() {
@@ -154,20 +178,26 @@ class _LoginPageState extends State<LoginPage> {
         checkKeyInData(password) &&
         checkKeyInData(nickname) &&
         login) {
-      print('已有登入');
+      LogData().d(tag, '已登入');
     } else {
-      print('無使用者登入');
+      LogData().d(tag, '無使用者');
     }
   }
 
-  void saveUser() {
+  void saveUser(String token) {
     String userName = userNameController.text.trim();
     String password = passwordController.text.trim();
     String nickname = nicknameController.text.trim();
-    preferences.setString('userName', userName);
-    preferences.setString('password', password);
-    preferences.setString('nickname', nickname);
-    preferences.setBool('login', true);
+    preferences.setString(sUsername, userName);
+    preferences.setString(sPassword, password);
+    preferences.setString(sNickname, nickname);
+    preferences.setBool(sLogin, true);
+    preferences.setString(sToken, token);
   }
 
+  void clearTextField() {
+    userNameController.text = "";
+    passwordController.text = "";
+    nicknameController.text = "";
+  }
 }
