@@ -21,7 +21,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  static const tag = 'tag LoginPage';
+  static const tag = 'tag _LoginPageState';
   var image;
   String systemMessage = "";
   TextEditingController userNameController = TextEditingController();
@@ -47,72 +47,87 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    var screenSide = MediaQuery.of(context).size.width * 0.1;
-    return Container(
-      alignment: Alignment.center,
-      child: Padding(
-        padding: EdgeInsets.all(screenSide),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              MaterialButton(
-                shape: CircleBorder(
-                    side: BorderSide(width: 2.5, color: Colors.black)),
-                onPressed: () {
-                  getImage();
-                },
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: image != null
-                      ? Image.file(
-                          image,
-                          width: 70.0,
-                          height: 70.0,
-                          fit: BoxFit.fitHeight,
-                        )
-                      : Image.asset(
-                          accountImage,
-                          fit: BoxFit.cover,
-                          color: Colors.black,
-                        ),
-                ),
-              ),
-              ComTextField(
-                  controller: userNameController, labelText: 'User name'),
-              ComTextField(
-                  controller: passwordController,
-                  labelText: 'Password',
-                  obscureText: true),
-              // ComTextField(controller: confirmPasswordController,labelText: 'Confirm Password', obscureText: true),
-              ComTextField(
-                  controller: nicknameController, labelText: 'Nickname'),
-              // ComTextField(controller: emailController,labelText: 'email', keyboardType: TextInputType.emailAddress),
-              // ComTextField(controller: phoneController,labelText: 'phone', keyboardType: TextInputType.phone),
-              // ComTextField(controller: addressController,labelText: 'address'),
-              ElevatedButton(
-                  child: Text(
-                    'Sign Up',
-                    style: TextStyle(
-                      fontSize: 20,
+    final screenSide = MediaQuery.of(context).size.width * 0.05;
+    return Scaffold(
+        backgroundColor: Colors.white,
+        body: Container(
+          alignment: Alignment.center,
+          child: Padding(
+            padding: EdgeInsets.all(screenSide),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  MaterialButton(
+                    shape: CircleBorder(
+                        side: BorderSide(width: 2.5, color: Colors.black)),
+                    onPressed: () {
+                      getImage();
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: image != null
+                          ? Image.file(
+                              image,
+                              width: 70.0,
+                              height: 70.0,
+                              fit: BoxFit.fitHeight,
+                            )
+                          : Image.asset(
+                              accountImage,
+                              fit: BoxFit.cover,
+                              color: Colors.black,
+                            ),
                     ),
                   ),
-                  onPressed: () {
-                    if (checkKeyInData(userNameController.text) &&
-                        checkKeyInData(passwordController.text) &&
-                        checkKeyInData(nicknameController.text)) {
-                      signUp();
-                    }
-                  }),
-              Text(
-                systemMessage,
-                style: TextStyle(color: Colors.black87),
+                  ComTextField(
+                      controller: userNameController, labelText: 'User name'),
+                  ComTextField(
+                      controller: passwordController,
+                      labelText: 'Password',
+                      obscureText: true),
+                  ComTextField(
+                      controller: nicknameController, labelText: 'Nickname'),
+                  // ComTextField(controller: emailController,labelText: 'email', keyboardType: TextInputType.emailAddress),
+                  // ComTextField(controller: phoneController,labelText: 'phone', keyboardType: TextInputType.phone),
+                  // ComTextField(controller: addressController,labelText: 'address'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                          child: Text(
+                            'Sign Up',
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                          onPressed: () {
+                            if (checkKeyInData(userNameController.text) &&
+                                checkKeyInData(passwordController.text) &&
+                                checkKeyInData(nicknameController.text)) {
+                              signUp();
+                            }
+                          }),
+                      ElevatedButton(
+                          child: Text(
+                            'Sign In',
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                          onPressed: () {}),
+                    ],
+                  ),
+
+                  Text(
+                    systemMessage,
+                    style: TextStyle(color: Colors.black87),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Future<void> getImage() async {
@@ -136,7 +151,11 @@ class _LoginPageState extends State<LoginPage> {
     String username = userNameController.text.trim();
     String pass = passwordController.text.trim();
     String nick = nicknameController.text.trim();
-    User user = User(username: username, password: pass, nickname: nick, status: statusPrivate);
+    User user = User(
+        username: username,
+        password: pass,
+        nickname: nick,
+        status: statusPrivate);
     String json = jsonEncode(user);
     Map<String, String> map = {sAction: sInsert, sContent: sUser};
     LogData().dd(tag, "json", json);
@@ -153,12 +172,12 @@ class _LoginPageState extends State<LoginPage> {
       clearTextField();
       systemMessage = "";
       passwordController.text = "";
-      Navigator.of(context).pushNamed('/Personal',arguments: user );
+      Navigator.of(context).pushNamed('/Personal', arguments: user);
+      // Navigator.of(context).pushNamed('/Edit');
     } else {
       systemMessage = sFail;
     }
     setState(() {});
-
   }
 
   void logIn() {
@@ -186,10 +205,8 @@ class _LoginPageState extends State<LoginPage> {
 
   void saveUser(String token) {
     String userName = userNameController.text.trim();
-    String password = passwordController.text.trim();
     String nickname = nicknameController.text.trim();
     preferences.setString(sUsername, userName);
-    preferences.setString(sPassword, password);
     preferences.setString(sNickname, nickname);
     preferences.setBool(sLogin, true);
     preferences.setString(sToken, token);
