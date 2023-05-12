@@ -11,6 +11,7 @@ const String sQuery = "query";
 const String sType = "type";
 const String sImage = "image";
 const String sUser = "user";
+const String sAlbum = "album";
 const String sId = "id";
 const String sUsername = "username";
 const String sPassword = "password";

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sharing_photo_notes/models/user.dart';
 import 'package:sharing_photo_notes/pages/edit_page.dart';
 import 'package:sharing_photo_notes/pages/login_page.dart';
 import 'package:sharing_photo_notes/pages/personal_page.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/Edit': (context) => EditPage(),
       },
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: HomePage(),
         ),
@@ -55,6 +57,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Container(
           child: currentPage,
@@ -66,15 +69,16 @@ class _HomePageState extends State<HomePage> {
     preferences = await SharedPreferences.getInstance();
     String username = preferences.getString("username") ?? "";
     String nickname = preferences.getString("nickname") ?? "";
+    String token = preferences.getString("token") ?? "";
     bool login = preferences.getBool("login") ?? false;
 
     if (checkString(username) &&
         checkString(nickname) &&
+        checkString(token) &&
         login) {
       LogData().d(tag, '已登入');
-      currentPage =  EditPage();
-      setState(() {
-      });
+      Navigator.of(context).pushNamed('/Edit',
+          arguments: User(username: username, nickname: nickname, token: token) );
     } else {
       LogData().d(tag, '無使用者');
     }

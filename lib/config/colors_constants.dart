@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
 
-const Color sysMessageColor = Colors.black12;
-const Color backgroundColor = Colors.white;
+const Color colorSysMessage = Colors.black12;
+const Color colorBackground = Colors.white;
+const Color colorIcon = Colors.grey;
+const Color colorClick = Colors.blue;

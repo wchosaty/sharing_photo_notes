@@ -31,7 +31,7 @@ class _PersonalPageState extends State<PersonalPage> {
     }
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: colorBackground,
       body: Center(
         child: Padding(
           padding: EdgeInsets.all(100),

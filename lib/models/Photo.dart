@@ -2,32 +2,35 @@ import 'dart:typed_data';
 
 class Photo {
   late int id;
-  Uint8List image = Uint8List(0);
-  late String title;
-  late String describe;
   late int last_time;
-  late String imagePath;
+  late String album_name;
+  late String note;
+  late String image_path;
+  late Uint8List image;
 
-  Photo(
-      {required this.id,
-      this.title = '',
-      this.describe = '',
-      last_time = 0,
-      this.imagePath = ""});
+  Photo({
+    this.id = 0,
+    this.last_time = 0,
+    this.album_name = '',
+    this.note = '',
+    this.image_path = "",
+    required this.image,
+  });
 
   Photo.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         image = json['image'],
-        title = json['title'],
-        describe = json['describe'],
+        album_name = json['album_name'],
+        note = json['note'],
         last_time = json['last_time'],
-        imagePath = json['imagePath'];
+        image_path = json['image_path'];
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'image': image,
-        'title': title,
-        'describe': describe,
+        'note': note,
+        'album_name': album_name,
         'last_time': last_time,
+        'image_path': image_path,
       };
 }

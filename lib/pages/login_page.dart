@@ -8,10 +8,11 @@ import 'package:sharing_photo_notes/config/http_constants.dart';
 import 'package:sharing_photo_notes/config/model_constants.dart';
 import 'package:sharing_photo_notes/config/widget_constants.dart';
 import 'package:sharing_photo_notes/models/user.dart';
-import 'package:sharing_photo_notes/pages/personal_page.dart';
 import 'package:sharing_photo_notes/utils/http_connection.dart';
 import 'package:sharing_photo_notes/utils/log_data.dart';
 import 'package:sharing_photo_notes/widgets/com_text_field.dart';
+
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -35,14 +36,12 @@ class _LoginPageState extends State<LoginPage> {
   late String username;
   late String password;
   late String nickname;
+  late String token;
   late bool login;
 
   @override
   void initState() {
     super.initState();
-
-    /// 有await 不能直接寫在iniState
-    loadUser();
   }
 
   @override
@@ -74,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                               fit: BoxFit.fitHeight,
                             )
                           : Image.asset(
-                              accountImage,
+                              imageAccount,
                               fit: BoxFit.cover,
                               color: Colors.black,
                             ),
@@ -88,9 +87,6 @@ class _LoginPageState extends State<LoginPage> {
                       obscureText: true),
                   ComTextField(
                       controller: nicknameController, labelText: 'Nickname'),
-                  // ComTextField(controller: emailController,labelText: 'email', keyboardType: TextInputType.emailAddress),
-                  // ComTextField(controller: phoneController,labelText: 'phone', keyboardType: TextInputType.phone),
-                  // ComTextField(controller: addressController,labelText: 'address'),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -157,10 +153,10 @@ class _LoginPageState extends State<LoginPage> {
         nickname: nick,
         status: statusPrivate);
     String json = jsonEncode(user);
-    Map<String, String> map = {sAction: sInsert, sContent: sUser};
+    Map<String, String> headerMap = {sAction: sInsert, sContent: sUser};
     LogData().dd(tag, "json", json);
     String back = await HttpConnection().toServer(
-        ip: urlIp, path: urlServerUserPath, json: json, headerMap: map);
+        ip: urlIp, path: urlServerUserPath, json: json, headerMap: headerMap);
 
     ///驗證
     if (back.isNotEmpty) {
@@ -184,23 +180,6 @@ class _LoginPageState extends State<LoginPage> {
     String user = userNameController.text.trim();
     String pass = passwordController.text.trim();
     String nick = nicknameController.text.trim();
-  }
-
-  Future loadUser() async {
-    preferences = await SharedPreferences.getInstance();
-    username = preferences.getString("username") ?? "";
-    password = preferences.getString("password") ?? "";
-    nickname = preferences.getString("nickname") ?? "";
-    login = preferences.getBool("login") ?? false;
-
-    if (checkKeyInData(username) &&
-        checkKeyInData(password) &&
-        checkKeyInData(nickname) &&
-        login) {
-      LogData().d(tag, '已登入');
-    } else {
-      LogData().d(tag, '無使用者');
-    }
   }
 
   void saveUser(String token) {

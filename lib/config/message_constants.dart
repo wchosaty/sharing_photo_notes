@@ -1,0 +1,1 @@
+const String mPhotosEditEmpty = '相簿或描述空白';

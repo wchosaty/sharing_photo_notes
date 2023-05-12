@@ -1,8 +1,22 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:gson/gson.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:sharing_photo_notes/config/colors_constants.dart';
+import 'package:sharing_photo_notes/config/http_constants.dart';
+import 'package:sharing_photo_notes/config/message_constants.dart';
+import 'package:sharing_photo_notes/config/model_constants.dart';
+import 'package:sharing_photo_notes/config/string_constants.dart';
+import 'package:sharing_photo_notes/config/widget_constants.dart';
 import 'package:sharing_photo_notes/models/Photo.dart';
+import 'package:sharing_photo_notes/models/album.dart';
+import 'package:sharing_photo_notes/models/user.dart';
+import 'package:sharing_photo_notes/utils/http_connection.dart';
+import 'package:sharing_photo_notes/utils/log_data.dart';
 import 'package:sharing_photo_notes/widgets/com_text_field.dart';
 
 class EditPage extends StatefulWidget {
@@ -13,53 +27,283 @@ class EditPage extends StatefulWidget {
 }
 
 class _EditPageState extends State<EditPage> {
+  static const tag = 'tag _EditPageState';
+  late List<XFile> images;
   late List<Photo> list;
   late Uint8List photos;
   late String albumName;
-  late String title;
-  late String describe;
-  TextEditingController albumNameController = TextEditingController();
-  TextEditingController titleController = TextEditingController();
-  TextEditingController describeController = TextEditingController();
+  late String note;
+  late TextEditingController albumNameController;
+  late TextEditingController noteController;
+  late PageController? pageController;
+  var viewportFraction = 0.8;
+  String localUsername = '';
+  double? pageOffset = 0;
 
   @override
   void initState() {
     super.initState();
     albumName = '';
-    title = '';
-    describe = '';
+    note = '';
+    images = [];
+
+    albumNameController = TextEditingController();
+    noteController = TextEditingController();
+    pageController =
+        PageController(initialPage: 0, viewportFraction: viewportFraction)
+          ..addListener(() => setState(() {
+                pageOffset = pageController!.page!;
+              }));
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenSide = MediaQuery.of(context).size.width * 0.05;
-    final screenHeight = MediaQuery.of(context).size.height * 0.05;
+    if (ModalRoute.of(context)?.settings.arguments != null) {
+      User user = ModalRoute.of(context)?.settings.arguments as User;
+      localUsername = user.username;
+    }
+    final screenSide = MediaQuery.of(context).size.width * 0.01;
+    final screenHeight = MediaQuery.of(context).size.height * 0.01;
     return Scaffold(
-      backgroundColor: backgroundColor,
+      resizeToAvoidBottomInset: false,
+      backgroundColor: colorBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text(
           'Edit',
-        style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.black),
         ),
       ),
       body: Container(
         alignment: Alignment.topCenter,
+        margin: const EdgeInsets.all(1),
         child: Padding(
           padding: EdgeInsets.all(screenSide),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              PageView(),
-              ComTextField(
-                  labelText: albumName, controller: albumNameController),
-              ComTextField(labelText: title, controller: titleController),
-              ComTextField(labelText: describe, controller: describeController),
+              Expanded(
+                child: ComTextField(
+                  labelText: sHintAlbum,
+                  controller: albumNameController,
+                  maxLength: 20,
+                ),
+                flex: 1,
+              ),
+              Expanded(
+                child: ComTextField(
+                  labelText: sHintNote,
+                  controller: noteController,
+                  maxLength: 50,
+                ),
+                flex: 1,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(1),
+                  child: PageView.builder(
+                    controller: pageController,
+                    itemCount: images.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      ///Image縮小Max為螢幕高度的15%
+                      double imageScaleHeight = screenHeight * 15;
+                      double heightOffset = (pageOffset! - index).abs();
+
+                      /// 分三部分 : 不縮高度 縮:1 縮:2
+                      double subTimes = imageScaleHeight;
+                      double baseOffset = subTimes / 10;
+                      heightOffset *= subTimes / 2;
+                      if (heightOffset > imageScaleHeight)
+                        heightOffset = imageScaleHeight;
+
+                      /// shift decribe
+                      return Padding(
+                        padding: EdgeInsets.only(
+                            top: baseOffset + heightOffset,
+                            bottom: screenHeight,
+                            left: screenSide,
+                            right: screenSide),
+                        child: Transform(
+                          transform: Matrix4.identity()..setEntry(3, 2, 0.001),
+                          alignment: Alignment.center,
+                          child: Material(
+                            color: Colors.transparent,
+                            child: ClipRRect(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(25)),
+                              child: Image.file(
+                                File(images[index].path),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                flex: 5,
+              ),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  margin: EdgeInsets.all(5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      /// 返回
+                      InkWell(
+                        onTap: () {},
+                        radius: dIconWidth / 2,
+                        splashColor: colorClick,
+                        child: Image.asset(
+                          imageUndoPhoto,
+                          width: dIconWidth,
+                          height: dIconWidth,
+                          fit: BoxFit.cover,
+                          color: colorIcon,
+                        ),
+                      ),
+
+                      /// 選照片
+                      InkWell(
+                        onTap: () {
+                          _getImages();
+                        },
+                        radius: dIconWidth / 2,
+                        splashColor: colorClick,
+                        child: Image.asset(
+                          imageAddPhoto,
+                          width: dIconWidth,
+                          height: dIconWidth,
+                          fit: BoxFit.cover,
+                          color: colorIcon,
+                        ),
+                      ),
+
+                      /// 刪除單張照片
+                      InkWell(
+                          onTap: () {
+                            _deleteImage();
+                          },
+                          radius: dIconWidth / 2,
+                          splashColor: colorClick,
+                          child: Image.asset(
+                            imageDeletePhoto,
+                            width: dIconWidth,
+                            height: dIconHeight,
+                            fit: BoxFit.cover,
+                            color: colorIcon,
+                          )),
+
+                      /// 清除相簿
+                      InkWell(
+                        onTap: () {
+                          _removeAllImage();
+                        },
+                        radius: dIconWidth / 2,
+                        splashColor: colorClick,
+                        child: Image.asset(
+                          imageRemovePhoto,
+                          width: dIconWidth,
+                          height: dIconWidth,
+                          fit: BoxFit.cover,
+                          color: colorIcon,
+                        ),
+                      ),
+
+                      /// 上傳
+                      InkWell(
+                        onTap: () {
+                          if (_checkAlbum()) {
+                            _uploadAlbum();
+                          } else {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                                    content: Text(
+                              mPhotosEditEmpty,
+                              style: TextStyle(fontSize: fontSizeSnackBar),
+                            )));
+                          }
+                        },
+                        radius: dIconWidth / 2,
+                        splashColor: colorClick,
+                        child: Image.asset(
+                          imageUploadPhoto,
+                          width: dIconWidth,
+                          height: dIconWidth,
+                          fit: BoxFit.cover,
+                          color: colorIcon,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _getImages() async {
+    /// 可調整來源圖片
+    var selectImage = await ImagePicker()
+        .pickMultiImage(maxWidth: 1080, maxHeight: 1080, imageQuality: 70);
+    // var selectImage = await ImagePicker().pickMultiImage();
+    if (selectImage.isNotEmpty) {
+      images.addAll(selectImage);
+    }
+    setState(() {});
+  }
+
+  void _deleteImage() {
+    var index = pageController?.page?.toInt();
+    images.removeAt(index!);
+    setState(() {});
+  }
+
+  void _removeAllImage() {
+    images = [];
+    setState(() {});
+  }
+
+  bool _checkAlbum() {
+    bool flag = false;
+    albumName = albumNameController.text.trim();
+    note = noteController.text.trim();
+    if (checkString(albumName) && checkString(note) && (images.isNotEmpty))
+      flag = true;
+    return flag;
+  }
+
+  bool checkString(String s) {
+    bool flag = false;
+    if (s.trim().isNotEmpty) flag = true;
+    return flag;
+  }
+
+  Future<void> _uploadAlbum() async {
+    String albumName = albumNameController.text.trim();
+    String note = noteController.text.trim();
+
+    List<Photo> list = [];
+    // List<Uint8List> imageList = [];
+    int id = DateTime.now().microsecondsSinceEpoch;
+    for (int i = 0; i < images.length; i++) {
+      Uint8List image = await images[i].readAsBytes();
+      // imageList.add(image);
+      Photo photo = Photo(image: image,note: note,album_name: albumName,
+          id: id+i, image_path: "$localUsername/$albumName/${id.toString()}");
+      list.add(photo);
+    }
+    Album album = Album(list: list, album_name: albumName, username: localUsername, note: note);
+    Map<String, String> headerMap = {sAction: sInsert, sContent: sAlbum};
+    String json = jsonEncode(album);
+    LogData().dd(tag, 'json', json);
+    String back = await HttpConnection().toServer(ip: urlIp, path: urlServerAlbumPath, json: json, headerMap: headerMap);
+
   }
 }
