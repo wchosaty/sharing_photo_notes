@@ -14,6 +14,7 @@ import 'package:sharing_photo_notes/config/string_constants.dart';
 import 'package:sharing_photo_notes/config/widget_constants.dart';
 import 'package:sharing_photo_notes/models/Photo.dart';
 import 'package:sharing_photo_notes/models/album.dart';
+import 'package:sharing_photo_notes/models/album_list.dart';
 import 'package:sharing_photo_notes/models/user.dart';
 import 'package:sharing_photo_notes/utils/http_connection.dart';
 import 'package:sharing_photo_notes/utils/log_data.dart';
@@ -288,7 +289,6 @@ class _EditPageState extends State<EditPage> {
   Future<void> _uploadAlbum() async {
     String albumName = albumNameController.text.trim();
     String note = noteController.text.trim();
-
     List<Photo> list = [];
     // List<Uint8List> imageList = [];
     int id = DateTime.now().microsecondsSinceEpoch;
@@ -299,11 +299,22 @@ class _EditPageState extends State<EditPage> {
           id: id+i, image_path: "$localUsername/$albumName/${id.toString()}");
       list.add(photo);
     }
-    Album album = Album(list: list, album_name: albumName, username: localUsername, note: note);
-    Map<String, String> headerMap = {sAction: sInsert, sContent: sAlbum};
-    String json = jsonEncode(album);
-    LogData().dd(tag, 'json', json);
-    String back = await HttpConnection().toServer(ip: urlIp, path: urlServerAlbumPath, json: json, headerMap: headerMap);
 
+    Album album = Album(list: list, album_name: albumName, username: localUsername, note: note);
+    Map<String, String> headerAlbum = {sAction: sInsert, sContent: sAlbum};
+    String jsonAlbum = jsonEncode(album);
+    LogData().dd(tag, 'jsonAlbum', jsonAlbum);
+    String back = await HttpConnection().toServer(ip: urlIp, path: urlServerAlbumPath, json: jsonAlbum, headerMap: headerAlbum);
+    if(back.isNotEmpty) {
+      LogData().d(tag, 'back.isNotEmpty');
+      AlbumList albumList = AlbumList(
+          album_name: albumName, username: localUsername,
+          id: id,status: statusPublic);
+      String jsonAlbumList = jsonEncode(albumList);
+      LogData().dd(tag, 'jsonAlbumList', jsonAlbumList);
+      Map<String, String> headerAlbumList = {sAction: sInsert, sContent: sAlbumList};
+      String back2 =
+      await HttpConnection().toServer(ip: urlIp, path: urlServerAlbumPath, json: jsonAlbumList, headerMap: headerAlbumList);
+    }
   }
 }
