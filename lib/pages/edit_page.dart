@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:gson/gson.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sharing_photo_notes/config/colors_constants.dart';
 import 'package:sharing_photo_notes/config/http_constants.dart';
 import 'package:sharing_photo_notes/config/message_constants.dart';
@@ -32,6 +33,7 @@ class _EditPageState extends State<EditPage> {
   late List<XFile> images;
   late List<Photo> list;
   late Uint8List photos;
+  late List<AlbumList> albumLists;
   late String albumName;
   late String note;
   late TextEditingController albumNameController;
@@ -44,10 +46,12 @@ class _EditPageState extends State<EditPage> {
   @override
   void initState() {
     super.initState();
+
+    localUsername = '';
     albumName = '';
     note = '';
     images = [];
-
+    albumLists = [];
     albumNameController = TextEditingController();
     noteController = TextEditingController();
     pageController =
@@ -59,10 +63,8 @@ class _EditPageState extends State<EditPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (ModalRoute.of(context)?.settings.arguments != null) {
-      User user = ModalRoute.of(context)?.settings.arguments as User;
-      localUsername = user.username;
-    }
+    getUser();
+
     final screenSide = MediaQuery.of(context).size.width * 0.01;
     final screenHeight = MediaQuery.of(context).size.height * 0.01;
     return Scaffold(
@@ -84,21 +86,15 @@ class _EditPageState extends State<EditPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Expanded(
-                child: ComTextField(
-                  labelText: sHintAlbum,
-                  controller: albumNameController,
-                  maxLength: 20,
-                ),
-                flex: 1,
+              ComTextField(
+                labelText: sHintAlbum,
+                controller: albumNameController,
+                maxLength: 20,
               ),
-              Expanded(
-                child: ComTextField(
-                  labelText: sHintNote,
-                  controller: noteController,
-                  maxLength: 50,
-                ),
-                flex: 1,
+              ComTextField(
+                labelText: sHintNote,
+                controller: noteController,
+                maxLength: 50,
               ),
               Expanded(
                 child: Padding(
@@ -144,7 +140,7 @@ class _EditPageState extends State<EditPage> {
                     },
                   ),
                 ),
-                flex: 5,
+                flex: 4,
               ),
               Expanded(
                 flex: 1,
@@ -294,27 +290,97 @@ class _EditPageState extends State<EditPage> {
     int id = DateTime.now().microsecondsSinceEpoch;
     for (int i = 0; i < images.length; i++) {
       Uint8List image = await images[i].readAsBytes();
-      // imageList.add(image);
-      Photo photo = Photo(image: image,note: note,album_name: albumName,
-          id: id+i, image_path: "$localUsername/$albumName/${id.toString()}");
+      Photo photo = Photo(
+          image: image,
+          note: note,
+          album_name: albumName,
+          id: id + i,
+          image_path: "$localUsername/$albumName/${id.toString()}");
       list.add(photo);
     }
 
-    Album album = Album(list: list, album_name: albumName, username: localUsername, note: note);
+    Album album = Album(
+        list: list, album_name: albumName, username: localUsername, note: note);
     Map<String, String> headerAlbum = {sAction: sInsert, sContent: sAlbum};
     String jsonAlbum = jsonEncode(album);
     LogData().dd(tag, 'jsonAlbum', jsonAlbum);
-    String back = await HttpConnection().toServer(ip: urlIp, path: urlServerAlbumPath, json: jsonAlbum, headerMap: headerAlbum);
-    if(back.isNotEmpty) {
+    String back = await HttpConnection().toServer(
+        ip: urlIp,
+        path: urlServerAlbumPath,
+        json: jsonAlbum,
+        headerMap: headerAlbum);
+    if (back.isNotEmpty) {
       LogData().d(tag, 'back.isNotEmpty');
       AlbumList albumList = AlbumList(
-          album_name: albumName, username: localUsername,
-          id: id,status: statusPublic);
+          album_name: albumName,
+          username: localUsername,
+          id: id,
+          status: statusPublic);
       String jsonAlbumList = jsonEncode(albumList);
       LogData().dd(tag, 'jsonAlbumList', jsonAlbumList);
-      Map<String, String> headerAlbumList = {sAction: sInsert, sContent: sAlbumList};
-      String back2 =
-      await HttpConnection().toServer(ip: urlIp, path: urlServerAlbumPath, json: jsonAlbumList, headerMap: headerAlbumList);
+      Map<String, String> headerAlbumList = {
+        sAction: sInsert,
+        sContent: sAlbumList
+      };
+      String back2 = await HttpConnection().toServer(
+          ip: urlIp,
+          path: urlServerAlbumPath,
+          json: jsonAlbumList,
+          headerMap: headerAlbumList);
+      if (back2.isNotEmpty) {
+        print("back2");
+        saveFile(jsonAlbum, albumList);
+      }
+    }
+  }
+
+  Future<Directory> getPath(String dirName) async {
+    final dirSource = await getApplicationDocumentsDirectory();
+    final dirPath = Directory('${dirSource.path}/$dirName');
+    bool exist = await dirPath.exists();
+    if (!exist) {
+      await dirPath.create();
+    }
+    return dirPath;
+  }
+
+  Future<void> saveFile(String json, AlbumList albumList) async {
+    Directory dirUsername = await getPath(localUsername);
+    File fileAlbumList = File("${dirUsername.path}/$sAlbumList");
+    String temp = "${localUsername}/${albumName}";
+    Directory dirAlbumName = await getPath(temp);
+    var file = File("${dirAlbumName.path}/$albumName");
+    file.writeAsString(json);
+
+    /// save albumLists
+    getAlbumLists();
+    albumLists.add(albumList);
+    String writeString = jsonEncode(albumLists);
+    fileAlbumList.writeAsString(writeString);
+  }
+
+  Future<void> getAlbumLists() async {
+    Directory dirUsername = await getPath(localUsername);
+    var file = File("${dirUsername.path}/$sAlbumList");
+    bool exist = await file.exists();
+    if (exist) {
+      albumLists = [];
+      String temp = await file.readAsString();
+      List<dynamic> readAlbumLists = jsonDecode(temp);
+      for (int i = 0; i < readAlbumLists.length; i++) {
+        albumLists.add(AlbumList.fomJson(readAlbumLists[i]));
+      }
+      LogData().dd(tag, "albumLists.length", albumLists.length.toString());
+    }
+  }
+
+  Future getUser() async{
+    if (!localUsername.isNotEmpty) {
+      if (ModalRoute.of(context)?.settings.arguments != null) {
+        User user = ModalRoute.of(context)?.settings.arguments as User;
+        localUsername = user.username;
+        LogData().dd(tag, "localUsername", localUsername);
+      }
     }
   }
 }
