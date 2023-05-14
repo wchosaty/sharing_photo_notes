@@ -78,8 +78,8 @@ class _HomePageState extends State<HomePage> {
         login) {
       LogData().d(tag, '已登入');
       /// pushReplacementNamed 會清除push的stack頁面 /pushRepNamed 不會
-      Navigator.of(context).pushReplacementNamed('/Edit',
-          arguments: User(username: username, nickname: nickname, token: token) );
+      Navigator.of(context).pushReplacementNamed('/Personal',
+          arguments: username );
     } else {
       LogData().d(tag, '無使用者');
     }

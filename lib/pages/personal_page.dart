@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sharing_photo_notes/config/colors_constants.dart';
+import 'package:sharing_photo_notes/models/album_list.dart';
 import 'package:sharing_photo_notes/models/user.dart';
+import 'package:sharing_photo_notes/utils/initialData.dart';
 
 class PersonalPage extends StatefulWidget {
   const PersonalPage({Key? key}) : super(key: key);
@@ -10,37 +12,42 @@ class PersonalPage extends StatefulWidget {
 }
 
 class _PersonalPageState extends State<PersonalPage> {
+  late List<AlbumList> albumLists;
+  late String localUsername;
+
   @override
   void initState() {
     super.initState();
+    albumLists = [];
+    localUsername = '';
   }
 
   @override
   Widget build(BuildContext context) {
-    String username = '1';
-    String nickname = '2';
-    String password = '3';
+    String test = '0';
 
     ///解析換頁帶來資料
     if (ModalRoute.of(context)?.settings.arguments != null) {
-      User user = ModalRoute.of(context)?.settings.arguments as User;
-
-      String username = user.username;
-      String nickname = user.nickname;
-      String password = user.password;
+      initialData();
     }
 
     return Scaffold(
-      backgroundColor: colorBackground,
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(100),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [Text(username), Text(password), Text(nickname)],
-          ),
+        backgroundColor: colorBackground,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).pushNamed('/Edit', arguments: localUsername);
+          },
+          child: const Icon(Icons.add),
         ),
-      ),
-    );
+        body: Container(
+          margin: EdgeInsets.all(1),
+          padding: EdgeInsets.all(1),
+          child: ListView.builder(itemBuilder: itemBuilder),
+        ));
+  }
+
+  Future initialData() async {
+    localUsername = ModalRoute.of(context)?.settings.arguments as String;
   }
 }
