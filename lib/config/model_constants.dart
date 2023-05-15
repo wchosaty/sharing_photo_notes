@@ -10,6 +10,7 @@ const String sQuery = "query";
 
 const String sType = "type";
 const String sImage = "image";
+const String sImages = "images";
 const String sUser = "user";
 const String sAlbum = "album",sAlbumList = "albumList";
 

@@ -15,6 +15,7 @@ import 'package:sharing_photo_notes/config/widget_constants.dart';
 import 'package:sharing_photo_notes/models/Photo.dart';
 import 'package:sharing_photo_notes/models/album.dart';
 import 'package:sharing_photo_notes/models/album_list.dart';
+import 'package:sharing_photo_notes/models/transfer_image.dart';
 import 'package:sharing_photo_notes/utils/access_album_lists.dart';
 import 'package:sharing_photo_notes/utils/http_connection.dart';
 import 'package:sharing_photo_notes/utils/log_data.dart';
@@ -31,7 +32,6 @@ class _EditPageState extends State<EditPage> {
   static const tag = 'tag _EditPageState';
   late List<XFile> images;
   late List<Photo> list;
-  late Uint8List photos;
   late List<AlbumList> albumLists;
   late String albumName;
   late String note;
@@ -67,7 +67,7 @@ class _EditPageState extends State<EditPage> {
         initialData();
       }
     }
-    final screenSide = MediaQuery.of(context).size.width * 0.01;
+    final screenWidth = MediaQuery.of(context).size.width * 0.01;
     final screenHeight = MediaQuery.of(context).size.height * 0.01;
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -84,7 +84,7 @@ class _EditPageState extends State<EditPage> {
         alignment: Alignment.topCenter,
         margin: const EdgeInsets.all(1),
         child: Padding(
-          padding: EdgeInsets.all(screenSide),
+          padding: EdgeInsets.all(screenWidth),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -98,7 +98,9 @@ class _EditPageState extends State<EditPage> {
                 controller: noteController,
                 maxLength: 50,
               ),
-              Expanded(
+              SizedBox(
+                width: screenWidth * 100,
+                height: screenHeight * 50,
                 child: Padding(
                   padding: EdgeInsets.all(1),
                   child: PageView.builder(
@@ -121,8 +123,8 @@ class _EditPageState extends State<EditPage> {
                         padding: EdgeInsets.only(
                             top: baseOffset + heightOffset,
                             bottom: screenHeight,
-                            left: screenSide,
-                            right: screenSide),
+                            left: screenWidth,
+                            right: screenWidth),
                         child: Transform(
                           transform: Matrix4.identity()..setEntry(3, 2, 0.001),
                           alignment: Alignment.center,
@@ -142,7 +144,6 @@ class _EditPageState extends State<EditPage> {
                     },
                   ),
                 ),
-                flex: 4,
               ),
               Expanded(
                 flex: 1,
@@ -251,7 +252,6 @@ class _EditPageState extends State<EditPage> {
     /// 可調整來源圖片
     var selectImage = await ImagePicker()
         .pickMultiImage(maxWidth: 1080, maxHeight: 1080, imageQuality: 70);
-    // var selectImage = await ImagePicker().pickMultiImage();
     if (selectImage.isNotEmpty) {
       images.addAll(selectImage);
     }
@@ -273,8 +273,7 @@ class _EditPageState extends State<EditPage> {
     bool flag = false;
     albumName = albumNameController.text.trim();
     note = noteController.text.trim();
-    if (checkString(albumName) && checkString(note) && (images.isNotEmpty))
-      flag = true;
+    if (checkString(albumName) && checkString(note) && (images.isNotEmpty)) flag = true;
     return flag;
   }
 
@@ -289,28 +288,36 @@ class _EditPageState extends State<EditPage> {
     String note = noteController.text.trim();
     List<Photo> list = [];
     int id = DateTime.now().microsecondsSinceEpoch;
+    String dir = "$localUsername/$albumName";
+    /// "$localUsername/$albumName/${id.toString()}.png";
+    Directory directory = await AccessAlbumLists.getPath(dir,true);
+    print("directory :${directory.path}");
+    List<TransferImage> transferList = [];
     for (int i = 0; i < images.length; i++) {
       Uint8List image = await images[i].readAsBytes();
+      int image_name = (id + i);
       Photo photo = Photo(
-          image: image,
+          // image: image,
           note: note,
           album_name: albumName,
-          id: id + i,
-          image_path: "$localUsername/$albumName/${id.toString()}");
+          id: image_name,
+          image_path: '${directory.path}/${(id + i)}.png');
       list.add(photo);
+      TransferImage transfer = TransferImage(image: image, image_name: image_name,username: localUsername);
+      transferList.add(transfer);
     }
-
+    /// upload 不包含image
     Album album = Album(
         list: list, album_name: albumName, username: localUsername, note: note);
     Map<String, String> headerAlbum = {sAction: sInsert, sContent: sAlbum};
     String jsonAlbum = jsonEncode(album);
     LogData().dd(tag, 'jsonAlbum', jsonAlbum);
-    String back = await HttpConnection().toServer(
+    String backAlbum = await HttpConnection().toServer(
         ip: urlIp,
         path: urlServerAlbumPath,
         json: jsonAlbum,
         headerMap: headerAlbum);
-    if (back.isNotEmpty) {
+    if (backAlbum.isNotEmpty) {
       LogData().d(tag, 'back.isNotEmpty');
       AlbumList albumList = AlbumList(
           album_name: albumName,
@@ -323,31 +330,56 @@ class _EditPageState extends State<EditPage> {
         sAction: sInsert,
         sContent: sAlbumList
       };
-      String back2 = await HttpConnection().toServer(
+      String backJsonAlbumList = await HttpConnection().toServer(
           ip: urlIp,
           path: urlServerAlbumPath,
           json: jsonAlbumList,
           headerMap: headerAlbumList);
-      if (back2.isNotEmpty) {
-        print("back2");
-        saveFile(jsonAlbum, albumList);
-        Navigator.of(context)
-            .pushReplacementNamed('/Personal', arguments: localUsername);
+      if (backJsonAlbumList.isNotEmpty) {
+        LogData().d(tag, "backJsonAlbumList");
+        String jsonTransfer = jsonEncode(transferList);
+        LogData().dd(tag, "jsonTransferImages", jsonTransfer );
+        Map<String, String> headerTransferImage = {
+          sAction: sInsert,
+          sContent: sImages,
+        };
+        String backTransferImage = await HttpConnection().toServer(
+            ip: urlIp,
+            path: urlServerAlbumPath,
+            json: jsonTransfer,
+            headerMap: headerTransferImage);
+        if(backTransferImage.isNotEmpty){
+          await saveFile(album, albumList);
+          Navigator.of(context)
+              .pushReplacementNamed('/Personal', arguments: localUsername);
+        }
+
       }
+
     }
   }
 
-  Future<void> saveFile(String json, AlbumList albumList) async {
-    Directory dirUsername = await AccessAlbumLists.getPath(localUsername);
+  Future<void> saveFile(Album album, AlbumList albumList) async {
+    Album albumEdit = album;
+    Directory dirUsername = await AccessAlbumLists.getPath(localUsername,true);
     File fileAlbumList = File("${dirUsername.path}/$sAlbumList");
     String temp = "${localUsername}/${albumName}";
-    Directory dirAlbumName = await AccessAlbumLists.getPath(temp);
+    Directory dirAlbumName = await AccessAlbumLists.getPath(temp,true);
+    LogData().dd(tag, "images/album.list length", "${images.length}/${album.list.length}");
+    /// save image
+    for (int i = 0; i < images.length; i++) {
+      File imageFile = File(images[i].path);
+      await imageFile.copy("${album.list[i].image_path}");
+
+    }
+    /// save album
     var file = File("${dirAlbumName.path}/$albumName");
+    String json = jsonEncode(albumEdit);
     file.writeAsString(json);
 
     /// save albumLists
     albumLists = await AccessAlbumLists.getAlbumLists(localUsername);
-    print("albumLists length: ${albumLists.length}");
+    LogData().dd(tag, "albumListsRead length", albumLists.length.toString());
     albumLists.add(albumList);
     String writeString = jsonEncode(albumLists);
     fileAlbumList.writeAsString(writeString);

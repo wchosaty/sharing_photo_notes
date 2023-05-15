@@ -6,7 +6,7 @@ class Photo {
   late String album_name;
   late String note;
   late String image_path;
-  late Uint8List image;
+  // late Uint8List image;
 
   Photo({
     this.id = 0,
@@ -14,12 +14,12 @@ class Photo {
     this.album_name = '',
     this.note = '',
     this.image_path = "",
-    required this.image,
+    // required this.image,
   });
 
   Photo.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        image = json['image'],
+        // image = json['image'],
         album_name = json['album_name'],
         note = json['note'],
         last_time = json['last_time'],
@@ -27,7 +27,7 @@ class Photo {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'image': image,
+        // 'image': image,
         'note': note,
         'album_name': album_name,
         'last_time': last_time,
