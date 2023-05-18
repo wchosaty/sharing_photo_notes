@@ -12,6 +12,7 @@ import 'package:sharing_photo_notes/config/message_constants.dart';
 import 'package:sharing_photo_notes/config/model_constants.dart';
 import 'package:sharing_photo_notes/config/string_constants.dart';
 import 'package:sharing_photo_notes/config/widget_constants.dart';
+import 'package:sharing_photo_notes/main.dart';
 import 'package:sharing_photo_notes/models/Photo.dart';
 import 'package:sharing_photo_notes/models/album.dart';
 import 'package:sharing_photo_notes/models/album_list.dart';
@@ -62,10 +63,14 @@ class _EditPageState extends State<EditPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (!localUsername.isNotEmpty) {
-      if (ModalRoute.of(context)?.settings.arguments != null) {
-        initialData();
-      }
+    // if (!localUsername.isNotEmpty) {
+    //   if (ModalRoute.of(context)?.settings.arguments != null) {
+    //     initialData();
+    //   }
+    // }
+    if (MyApp.localUser.isNotEmpty && MyApp.localUser != localUsername) {
+      LogData().d(tag, "MyApp.localUser.isNotEmpty");
+      initialData();
     }
     final screenWidth = MediaQuery.of(context).size.width * 0.01;
     final screenHeight = MediaQuery.of(context).size.height * 0.01;
@@ -102,7 +107,7 @@ class _EditPageState extends State<EditPage> {
                 width: screenWidth * 100,
                 height: screenHeight * 50,
                 child: Padding(
-                  padding: EdgeInsets.all(1),
+                  padding: const EdgeInsets.all(1),
                   child: PageView.builder(
                     controller: pageController,
                     itemCount: images.length,
@@ -118,7 +123,7 @@ class _EditPageState extends State<EditPage> {
                       if (heightOffset > imageScaleHeight)
                         heightOffset = imageScaleHeight;
 
-                      /// shift decribe
+                      /// shift describe
                       return Padding(
                         padding: EdgeInsets.only(
                             top: baseOffset + heightOffset,
@@ -155,12 +160,12 @@ class _EditPageState extends State<EditPage> {
                       /// 返回
                       InkWell(
                         onTap: () {},
-                        radius: dIconWidth / 2,
+                        radius: dIconSize / 2,
                         splashColor: colorClick,
                         child: Image.asset(
                           imageUndoPhoto,
-                          width: dIconWidth,
-                          height: dIconWidth,
+                          width: dIconSize,
+                          height: dIconSize,
                           fit: BoxFit.cover,
                           color: colorIcon,
                         ),
@@ -171,15 +176,16 @@ class _EditPageState extends State<EditPage> {
                         onTap: () {
                           _getImages();
                         },
-                        radius: dIconWidth / 2,
+                        radius: dIconSize / 2,
                         splashColor: colorClick,
-                        child: Image.asset(
-                          imageAddPhoto,
-                          width: dIconWidth,
-                          height: dIconWidth,
-                          fit: BoxFit.cover,
-                          color: colorIcon,
-                        ),
+                        child: Icon(Icons.login),
+                        // Image.asset(
+                        //   imageAddPhoto,
+                        //   width: dIconSize,
+                        //   height: dIconSize,
+                        //   fit: BoxFit.cover,
+                        //   color: colorIcon,
+                        // ),
                       ),
 
                       /// 刪除單張照片
@@ -187,12 +193,12 @@ class _EditPageState extends State<EditPage> {
                           onTap: () {
                             _deleteImage();
                           },
-                          radius: dIconWidth / 2,
+                          radius: dIconSize / 2,
                           splashColor: colorClick,
                           child: Image.asset(
                             imageDeletePhoto,
-                            width: dIconWidth,
-                            height: dIconHeight,
+                            width: dIconSize,
+                            height: dIconSize,
                             fit: BoxFit.cover,
                             color: colorIcon,
                           )),
@@ -202,12 +208,12 @@ class _EditPageState extends State<EditPage> {
                         onTap: () {
                           _removeAllImage();
                         },
-                        radius: dIconWidth / 2,
+                        radius: dIconSize / 2,
                         splashColor: colorClick,
                         child: Image.asset(
                           imageRemovePhoto,
-                          width: dIconWidth,
-                          height: dIconWidth,
+                          width: dIconSize,
+                          height: dIconSize,
                           fit: BoxFit.cover,
                           color: colorIcon,
                         ),
@@ -227,12 +233,12 @@ class _EditPageState extends State<EditPage> {
                             )));
                           }
                         },
-                        radius: dIconWidth / 2,
+                        radius: dIconSize / 2,
                         splashColor: colorClick,
                         child: Image.asset(
                           imageUploadPhoto,
-                          width: dIconWidth,
-                          height: dIconWidth,
+                          width: dIconSize,
+                          height: dIconSize,
                           fit: BoxFit.cover,
                           color: colorIcon,
                         ),

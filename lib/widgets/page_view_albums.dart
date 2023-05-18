@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:sharing_photo_notes/config/widget_constants.dart';
 import 'package:sharing_photo_notes/models/Photo.dart';
 import 'package:sharing_photo_notes/models/album.dart';
 import 'package:sharing_photo_notes/utils/access_album_lists.dart';
@@ -42,7 +41,7 @@ class _PageViewAlbumsState extends State<PageViewAlbums> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return Container(
-      margin: const EdgeInsets.only(top: 5,bottom: 5),
+      margin: const EdgeInsets.only(top: 10,bottom: 10),
       child: SizedBox(
         width: width * 0.95,
         height: height * 0.5,
@@ -51,11 +50,22 @@ class _PageViewAlbumsState extends State<PageViewAlbums> {
             itemCount: viewList.length,
             itemBuilder: (context, index) {
               return Container(
-                  margin: const EdgeInsets.only(left: 5, right: 5),
-                  child: Image.file(
-                    File(viewList[index].image_path),
-                    fit: BoxFit.cover,
-                  ));
+                margin: const EdgeInsets.only(left: 5, right: 5),
+                child: Transform(
+                  transform: Matrix4.identity()..setEntry(3, 2, 0.001),
+                  alignment: Alignment.center,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(30)),
+                      child: Image.file(
+                        File(viewList[index].image_path),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              );
             }),
       ),
     );

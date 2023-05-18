@@ -9,5 +9,4 @@ const String imageBackPhoto = 'assets/images/baseline_backspace_black_48.png';
 const double sFontSize = 18;
 
 const double fontSizeSnackBar = 20;
-const double dIconWidth = 35;
-const double dIconHeight = 35;
+const double dIconSize = 30;

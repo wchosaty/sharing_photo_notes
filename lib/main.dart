@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sharing_photo_notes/models/user.dart';
+import 'package:sharing_photo_notes/pages/browse_page.dart';
 import 'package:sharing_photo_notes/pages/edit_page.dart';
 import 'package:sharing_photo_notes/pages/login_page.dart';
 import 'package:sharing_photo_notes/pages/personal_page.dart';
@@ -11,8 +11,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-
   const MyApp({Key? key}) : super(key: key);
+  static String localUser = '';
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
         '/Login': (context) => LoginPage(),
         '/Personal': (context) => PersonalPage(),
         '/Edit': (context) => EditPage(),
+        '/Browse': (context) => BrowsePage(),
       },
       home: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -46,6 +47,8 @@ class _HomePageState extends State<HomePage> {
   static const tag = 'tag _HomePageState';
   late Widget currentPage;
   late SharedPreferences preferences;
+  int _currentIndex = 0;
+  final pages = [LoginPage(),BrowsePage(),PersonalPage()];
 
   @override
   void initState() {
@@ -58,9 +61,22 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      /// BottomNavigationBar
+      bottomNavigationBar: BottomNavigationBar(items: [
+        BottomNavigationBarItem(icon: Icon(Icons.logout),label: 'logout'),
+        BottomNavigationBarItem(icon: Icon(Icons.home),label: 'Browse'),
+        BottomNavigationBarItem(icon: Icon(Icons.edit_document),label: 'Edit'),
+      ],
+        currentIndex: _currentIndex,
+        onTap: _onItemClick,
+      ),
       body: SafeArea(
         child: Container(
-          child: currentPage,
+          /// BottomNavigationBar
+          child: pages[_currentIndex],
+
+          // child: LoginPage(),
         ),
       ),
     );
@@ -78,8 +94,11 @@ class _HomePageState extends State<HomePage> {
         login) {
       LogData().d(tag, '已登入');
       /// pushReplacementNamed 會清除push的stack頁面 /pushRepNamed 不會
-      Navigator.of(context).pushReplacementNamed('/Personal',
-          arguments: username );
+      // Navigator.of(context).pushReplacementNamed('/Personal', arguments: username );
+      MyApp.localUser = username.trim();
+      setState(() {
+        _currentIndex = 2;
+      });
     } else {
       LogData().d(tag, '無使用者');
     }
@@ -90,5 +109,11 @@ class _HomePageState extends State<HomePage> {
     String s = checkString.trim();
     if (s.isNotEmpty) returnVal = true;
     return returnVal;
+  }
+
+  void _onItemClick(int value) {
+    setState(() {
+      _currentIndex = value;
+    });
   }
 }

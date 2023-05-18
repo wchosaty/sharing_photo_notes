@@ -9,11 +9,13 @@ const String sDelete = "delete";
 const String sQuery = "query";
 
 const String sType = "type";
+const String sStatus = "status";
 const String sImage = "image";
 const String sImages = "images";
 const String sUser = "user";
 const String sAlbum = "album",sAlbumList = "albumList";
 
+const String sAlbumName = "album_name";
 const String sId = "id";
 const String sUsername = "username";
 const String sPassword = "password";

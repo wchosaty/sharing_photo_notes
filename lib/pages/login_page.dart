@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sharing_photo_notes/config/http_constants.dart';
 import 'package:sharing_photo_notes/config/model_constants.dart';
+import 'package:sharing_photo_notes/config/string_constants.dart';
 import 'package:sharing_photo_notes/config/widget_constants.dart';
 import 'package:sharing_photo_notes/models/user.dart';
 import 'package:sharing_photo_notes/utils/http_connection.dart';
@@ -58,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   MaterialButton(
-                    shape: CircleBorder(
+                    shape: const CircleBorder(
                         side: BorderSide(width: 2.5, color: Colors.black)),
                     onPressed: () {
                       getImage();
@@ -91,8 +92,8 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                          child: Text(
-                            'Sign Up',
+                          child: const Text(
+                            sSignUp,
                             style: TextStyle(
                               fontSize: 20,
                             ),
@@ -105,8 +106,8 @@ class _LoginPageState extends State<LoginPage> {
                             }
                           }),
                       ElevatedButton(
-                          child: Text(
-                            'Sign In',
+                          child: const Text(
+                            sSignIn,
                             style: TextStyle(
                               fontSize: 20,
                             ),
@@ -117,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   Text(
                     systemMessage,
-                    style: TextStyle(color: Colors.black87),
+                    style: const TextStyle(color: Colors.black87),
                   ),
                 ],
               ),

@@ -12,7 +12,7 @@ class HttpConnection {
     var response = await http.post(url,headers: headerMap ,body: json);
     if(response.statusCode == 200) {
       LogData().d(tag, 'statusCode 200');
-      back = Utf8Decoder().convert(response.bodyBytes);
+      back = const Utf8Decoder().convert(response.bodyBytes);
     }
     LogData().dd(tag, 'back', back.toString());
     return back;
