@@ -329,7 +329,7 @@ class _EditPageState extends State<EditPage> {
           album_name: albumName,
           username: localUsername,
           id: id,
-          status: statusPublic);
+          status: statusPublic,kind: sEmpty);
       String jsonAlbumList = jsonEncode(albumList);
       LogData().dd(tag, 'jsonAlbumList', jsonAlbumList);
       Map<String, String> headerAlbumList = {

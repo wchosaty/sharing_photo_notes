@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sharing_photo_notes/config/model_constants.dart';
 
 class AlbumList {
@@ -16,14 +17,16 @@ class AlbumList {
       this.status = statusPrivate,
       this.update_time = 0});
 
-  AlbumList.fomJson(Map<String, dynamic> json)
-      : id = json['id'],
-        album_name = json['album_name'],
-        username = json['username'],
-        status = json['status'],
-        kind = json['kind'],
-        update_time = json['update_time'];
-
+  factory AlbumList.fomJson(Map<String, dynamic> parsedJson) {
+     return AlbumList(
+     id : parsedJson['id'],
+    album_name : parsedJson['album_name'],
+    username : parsedJson['username'],
+    status : parsedJson['status'],
+    kind : parsedJson['kind'],
+    update_time : parsedJson['update_time']
+     );
+  }
   Map<String, dynamic> toJson() => {
         'id': id,
         'album_name': album_name,

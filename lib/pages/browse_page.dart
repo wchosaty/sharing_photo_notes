@@ -27,10 +27,8 @@ class _BrowsePageState extends State<BrowsePage> {
   @override
   void initState() {
     super.initState();
-    albumLists = [];
     localUsername = '';
-    int oldestAlbumId = 0;
-    int latestAlbumId = 0;
+    albumLists = [];
   }
 
   @override
@@ -58,24 +56,28 @@ class _BrowsePageState extends State<BrowsePage> {
   Future initialData() async{
     localUsername = MyApp.localUser;
     LogData().dd(tag, "localUsername", localUsername);
-    Map<String, String> headerCloudAlbum = {sAction: sQuery, sContent: sAlbum, sType: sStatus};
+    Map<String, String> headerCloudAlbum = {sAction: sQuery, sContent: sAlbumList, sType: sStatus};
     Map<String, int> map = {sContent: statusPublic};
-    String jsonCloudAlbum = jsonEncode(map);
-    LogData().dd(tag, 'jsonCloudAlbum', jsonCloudAlbum);
-    var backCloudAlbumList =
-    await HttpConnection().toServer(ip: urlIp, path: urlServerAlbumPath,json: jsonCloudAlbum, headerMap: headerCloudAlbum);
-
-    LogData().dd(tag, "backCloudAlbum", backCloudAlbumList.toString());
+    String jsonCloudAlbumList = jsonEncode(map);
+    LogData().dd(tag, 'jsonCloudAlbumList', jsonCloudAlbumList);
+    var back =
+    await HttpConnection().toServer(ip: urlIp, path: urlServerAlbumPath,json: jsonCloudAlbumList, headerMap: headerCloudAlbum);
+    LogData().dd(tag, "back", back.toString());
+    var backCloudAlbumList = jsonDecode(back);
+    LogData().dd(tag, "backCloudAlbumList", backCloudAlbumList.toString());
     List<AlbumList> list = [];
     if (backCloudAlbumList.isNotEmpty) {
-      LogData().d(tag, "backCloudAlbum.isNotEmpty");
-      for(int i=0;i<backCloudAlbumList.length;i++) {
-        list.add(AlbumList.fomJson(backCloudAlbumList[i] as Map<String, dynamic>));
+      LogData().d(tag, "backCloudAlbumList.isNotEmpty");
+      LogData().d(tag, "backCloudAlbumList.length :${backCloudAlbumList.length}");
+      for(int i = 0; i<backCloudAlbumList.length ; i++) {
+        list.add( AlbumList.fomJson(backCloudAlbumList[i]) );
       }
+      albumLists = [];
+      albumLists.addAll(list);
+      print("albumLists size : ${albumLists.length}");
       setState(() {
-        albumLists.addAll(list);
       });
 
-    }else LogData().d(tag, "backCloudAlbum.isEmpty");
+    }else LogData().d(tag, "backCloudAlbumList.isEmpty");
   }
 }

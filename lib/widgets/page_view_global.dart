@@ -12,6 +12,7 @@ import 'package:sharing_photo_notes/utils/log_data.dart';
 
 class PageViewGlobal extends StatefulWidget {
   AlbumList albumList;
+
   PageViewGlobal({Key? key, required this.albumList}) : super(key: key);
 
 
@@ -26,7 +27,9 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
   late PageController? pageController;
   late Album album;
   late String album_name;
+  late String username;
   var viewportFraction = 0.85;
+  late List<Photo> photos;
   double? pageOffset = 0;
   late List<TransferImage> transferList;
 
@@ -38,6 +41,8 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
       ..addListener(() => setState(() {
         pageOffset = pageController!.page!;
       }));
+    print("PageViewGlobal ini");
+    photos = [];
     initialData();
   }
 
@@ -46,24 +51,28 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(left: 1, right: 1),
-      child: const Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("data"),
-          SizedBox(width: 100,height: 100,),
-        ],),
+      child: SizedBox(width: 100, height: 100,
+        child: PageView.builder(
+            controller: pageController,
+            itemCount: photos.length,
+            itemBuilder: (context, index) {}),
+      )
     );
   }
 
   Future initialData() async{
     album_name = widget.albumList.album_name;
+    username = widget.albumList.username;
+    print("album_name : $album_name");
+    print("username : $username");
     Map<String, String> headerAlbum = {sAction: sQuery, sContent: sAlbum};
-    Map<String, String> map = {sType: sAlbumName, sAlbumName: album_name};
-    String jsonQuery = jsonEncode(map);
+    Map<String, String> map = {sType: sAlbumName, sAlbumName: album_name,sUsername: username};
+    String jsonAlbum = jsonEncode(map);
+    LogData().dd(tag, 'jsonAlbum', jsonAlbum);
    var backAlbum = await HttpConnection().toServer(
        ip: urlIp,
        path: urlServerAlbumPath,
-       json: jsonQuery,headerMap: headerAlbum);
+       json: jsonAlbum,headerMap: headerAlbum);
    if(backAlbum.isNotEmpty){
      LogData().d(tag, "backAlbum.isNotEmpty");
    }
