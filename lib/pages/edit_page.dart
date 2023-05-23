@@ -178,14 +178,13 @@ class _EditPageState extends State<EditPage> {
                         },
                         radius: dIconSize / 2,
                         splashColor: colorClick,
-                        child: Icon(Icons.login),
-                        // Image.asset(
-                        //   imageAddPhoto,
-                        //   width: dIconSize,
-                        //   height: dIconSize,
-                        //   fit: BoxFit.cover,
-                        //   color: colorIcon,
-                        // ),
+                        child: Image.asset(
+                          imageAddPhoto,
+                          width: dIconSize,
+                          height: dIconSize,
+                          fit: BoxFit.cover,
+                          color: colorIcon,
+                        ),
                       ),
 
                       /// 刪除單張照片
@@ -279,7 +278,8 @@ class _EditPageState extends State<EditPage> {
     bool flag = false;
     albumName = albumNameController.text.trim();
     note = noteController.text.trim();
-    if (checkString(albumName) && checkString(note) && (images.isNotEmpty)) flag = true;
+    if (checkString(albumName) && checkString(note) && (images.isNotEmpty))
+      flag = true;
     return flag;
   }
 
@@ -295,8 +295,9 @@ class _EditPageState extends State<EditPage> {
     List<Photo> list = [];
     int id = DateTime.now().microsecondsSinceEpoch;
     String dir = "$localUsername/$albumName";
+
     /// "$localUsername/$albumName/${id.toString()}.png";
-    Directory directory = await AccessAlbumLists.getPath(dir,true);
+    Directory directory = await AccessAlbumLists.getPath(dir, true);
     print("directory :${directory.path}");
     List<TransferImage> transferList = [];
     for (int i = 0; i < images.length; i++) {
@@ -309,9 +310,11 @@ class _EditPageState extends State<EditPage> {
           id: image_name,
           image_path: '${directory.path}/${(id + i)}.png');
       list.add(photo);
-      TransferImage transfer = TransferImage(image: image, image_name: image_name,username: localUsername);
+      TransferImage transfer = TransferImage(
+          image: image, image_name: image_name, username: localUsername);
       transferList.add(transfer);
     }
+
     /// upload 不包含image
     Album album = Album(
         list: list, album_name: albumName, username: localUsername, note: note);
@@ -329,7 +332,8 @@ class _EditPageState extends State<EditPage> {
           album_name: albumName,
           username: localUsername,
           id: id,
-          status: statusPublic,kind: sEmpty);
+          status: statusPublic,
+          kind: sEmpty);
       String jsonAlbumList = jsonEncode(albumList);
       LogData().dd(tag, 'jsonAlbumList', jsonAlbumList);
       Map<String, String> headerAlbumList = {
@@ -344,7 +348,7 @@ class _EditPageState extends State<EditPage> {
       if (backJsonAlbumList.isNotEmpty) {
         LogData().d(tag, "backJsonAlbumList");
         String jsonTransfer = jsonEncode(transferList);
-        LogData().dd(tag, "jsonTransferImages", jsonTransfer );
+        LogData().dd(tag, "jsonTransferImages", jsonTransfer);
         Map<String, String> headerTransferImage = {
           sAction: sInsert,
           sContent: sImages,
@@ -354,30 +358,30 @@ class _EditPageState extends State<EditPage> {
             path: urlServerAlbumPath,
             json: jsonTransfer,
             headerMap: headerTransferImage);
-        if(backTransferImage.isNotEmpty){
+        if (backTransferImage.isNotEmpty) {
           await saveFile(album, albumList);
           Navigator.of(context)
               .pushReplacementNamed('/Personal', arguments: localUsername);
         }
-
       }
-
     }
   }
 
   Future<void> saveFile(Album album, AlbumList albumList) async {
     Album albumEdit = album;
-    Directory dirUsername = await AccessAlbumLists.getPath(localUsername,true);
+    Directory dirUsername = await AccessAlbumLists.getPath(localUsername, true);
     File fileAlbumList = File("${dirUsername.path}/$sAlbumList");
     String temp = "${localUsername}/${albumName}";
-    Directory dirAlbumName = await AccessAlbumLists.getPath(temp,true);
-    LogData().dd(tag, "images/album.list length", "${images.length}/${album.list.length}");
+    Directory dirAlbumName = await AccessAlbumLists.getPath(temp, true);
+    LogData().dd(tag, "images/album.list length",
+        "${images.length}/${album.list.length}");
+
     /// save image
     for (int i = 0; i < images.length; i++) {
       File imageFile = File(images[i].path);
       await imageFile.copy("${album.list[i].image_path}");
-
     }
+
     /// save album
     var file = File("${dirAlbumName.path}/$albumName");
     String json = jsonEncode(albumEdit);

@@ -42,7 +42,7 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
         pageOffset = pageController!.page!;
       }));
     print("PageViewGlobal ini");
-    photos = [];
+
     initialData();
   }
 
@@ -55,7 +55,12 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
         child: PageView.builder(
             controller: pageController,
             itemCount: photos.length,
-            itemBuilder: (context, index) {}),
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.all(3),
+                child: Text("${photos[index].album_name}"),
+              );
+            }),
       )
     );
   }
@@ -69,12 +74,19 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
     Map<String, String> map = {sType: sAlbumName, sAlbumName: album_name,sUsername: username};
     String jsonAlbum = jsonEncode(map);
     LogData().dd(tag, 'jsonAlbum', jsonAlbum);
-   var backAlbum = await HttpConnection().toServer(
+   var back = await HttpConnection().toServer(
        ip: urlIp,
        path: urlServerAlbumPath,
        json: jsonAlbum,headerMap: headerAlbum);
-   if(backAlbum.isNotEmpty){
+    var backDecode = jsonDecode(back);
+    LogData().dd(tag, "backAlbum", backDecode.toString());
+   if(backDecode.isNotEmpty){
      LogData().d(tag, "backAlbum.isNotEmpty");
+     photos = [];
+     var backAlbum = Album.fromJson(backDecode);
+     photos.addAll(backAlbum.list);
+     setState(() {
+     });
    }
   }
 }

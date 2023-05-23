@@ -70,7 +70,7 @@ class _BrowsePageState extends State<BrowsePage> {
       LogData().d(tag, "backCloudAlbumList.isNotEmpty");
       LogData().d(tag, "backCloudAlbumList.length :${backCloudAlbumList.length}");
       for(int i = 0; i<backCloudAlbumList.length ; i++) {
-        list.add( AlbumList.fomJson(backCloudAlbumList[i]) );
+        list.add( AlbumList.fomJson(backCloudAlbumList[i]) ) ;
       }
       albumLists = [];
       albumLists.addAll(list);
