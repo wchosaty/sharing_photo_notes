@@ -42,7 +42,7 @@ class _BrowsePageState extends State<BrowsePage> {
         backgroundColor: colorBackground,
         // bottomNavigationBar: const MainBottomNavigationBar(),
         body: Container(
-          margin: const EdgeInsets.all(5),
+          margin: const EdgeInsets.all(1),
           child: ListView.builder(
             itemCount: albumLists.length,
               itemBuilder: (context, i) {
