@@ -63,11 +63,6 @@ class _EditPageState extends State<EditPage> {
 
   @override
   Widget build(BuildContext context) {
-    // if (!localUsername.isNotEmpty) {
-    //   if (ModalRoute.of(context)?.settings.arguments != null) {
-    //     initialData();
-    //   }
-    // }
     if (MyApp.localUser.isNotEmpty && MyApp.localUser != localUsername) {
       LogData().d(tag, "MyApp.localUser.isNotEmpty");
       initialData();
@@ -360,8 +355,7 @@ class _EditPageState extends State<EditPage> {
             headerMap: headerTransferImage);
         if (backTransferImage.isNotEmpty) {
           await saveFile(album, albumList);
-          Navigator.of(context)
-              .pushReplacementNamed('/Personal', arguments: localUsername);
+          Navigator.of(context).pop();
         }
       }
     }

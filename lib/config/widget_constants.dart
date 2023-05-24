@@ -6,7 +6,11 @@ const String imageRemovePhoto = 'assets/images/baseline_delete_black_48.png';
 const String imageUploadPhoto = 'assets/images/baseline_cloud_upload_black_48.png';
 const String imageUndoPhoto = 'assets/images/outline_undo_black_48.png';
 const String imageBackPhoto = 'assets/images/baseline_backspace_black_48.png';
+
 const double sFontSize = 18;
+const double sFontSizeAlbumName = 23;
+const double sFontSizeAlbumUsername = 18;
+const double sFontSizeNote = 20;
 
 const double fontSizeSnackBar = 20;
 const double dIconSize = 30;

@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:sharing_photo_notes/config/colors_constants.dart';
 import 'package:sharing_photo_notes/config/http_constants.dart';
 import 'package:sharing_photo_notes/config/model_constants.dart';
+import 'package:sharing_photo_notes/config/widget_constants.dart';
 import 'package:sharing_photo_notes/models/Photo.dart';
 import 'package:sharing_photo_notes/models/album.dart';
 import 'package:sharing_photo_notes/models/album_list.dart';
@@ -50,21 +52,47 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width * 0.01;
     final height = MediaQuery.of(context).size.height * 0.01;
-    print("height :$height");
     return Container(
         margin: const EdgeInsets.only(top: 1, bottom: 1),
         child: Column(
           children: [
             Container(
               margin: EdgeInsets.only(top: height,bottom: height),
-              child: Text(album_name,
-                  style: const TextStyle(
-                    letterSpacing: 1.3,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 25,
-                    height: 1.3,
-                  )),
+              child: Stack(
+                children:[ 
+                  SizedBox(width: width * 100 , height: 50,),
+                  Positioned(
+                    top: 3,
+                    left: width ,
+                    bottom: 3,
+                    child: Image.asset(
+                      imageAccount,
+                      fit: BoxFit.cover,
+                      color: Colors.black,)
+                  ),
+                  Positioned(
+                    top: 5,
+                    left: width * 15,
+                      child: Text(username,
+                          style: const TextStyle(
+                            letterSpacing: 0.5,
+                            color: Colors.black,
+                            fontSize: sFontSizeAlbumUsername,
+                          )
+                      ),),
+                  Positioned(
+                    bottom: 0,
+                    left: width * 40,
+                    child: Text(album_name,
+                        style: const TextStyle(
+                          letterSpacing: 1.5,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: sFontSizeAlbumName,
+                        )
+                    ),),
+                ]
+              ),
             ),
             SizedBox(
               width: width * 100 ,
@@ -103,26 +131,29 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
                                   Positioned(
                                       bottom: 0, left: 0, right: 0,
                                       child: AnimatedOpacity(
+                                        /// 0是透明
                                         opacity: angle == 0 ? 1 : 0,
                                         duration: const Duration(milliseconds: 300),
                                         child: Container(
                                           padding: const EdgeInsets.only(
-                                              top: 15, bottom: 30, left: 20, right: 20),
+                                              top: 20, bottom: 10, left: 25, right: 10),
                                           decoration: BoxDecoration(
                                             gradient: LinearGradient(
                                               begin: Alignment.topCenter,
                                               end: Alignment.bottomCenter,
                                                 colors: [
-                                                  Colors.black.withOpacity(0.05),
+                                                  Colors.black.withOpacity(0.01),
+                                                  Colors.black.withOpacity(0.20),
+                                                  Colors.black.withOpacity(0.55),
                                                   Colors.black.withOpacity(0.8),]
                                             )
                                           ),
                                           child: Text(photos[index].note,
                                               style: const TextStyle(
                                                 letterSpacing: 1.3,
-                                                color: Colors.white,
+                                                color: colorNote,
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 23,
+                                                fontSize: sFontSizeNote,
                                                 height: 1.3,
                                               )),
                                         ),

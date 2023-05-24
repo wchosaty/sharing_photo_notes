@@ -43,6 +43,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    initialData();
+
   }
 
   @override
@@ -196,5 +198,9 @@ class _LoginPageState extends State<LoginPage> {
     userNameController.text = "";
     passwordController.text = "";
     nicknameController.text = "";
+  }
+
+  void initialData() async{
+    preferences = await SharedPreferences.getInstance();
   }
 }
