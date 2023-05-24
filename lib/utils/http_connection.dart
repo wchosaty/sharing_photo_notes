@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:sharing_photo_notes/utils/log_data.dart';
@@ -29,13 +30,14 @@ class HttpConnection {
     LogData().dd(tag, 'back', back.toString());
     return back;
   }
-  Future<String> getDatabaseImage({String ip = "", String path = "", String json = "",required Map<String,String> headerMap}) async{
+  Future<Uint8List?> getDatabaseImage({String ip = "", String path = "", String json = "",required Map<String,String> headerMap}) async{
     Uri url = Uri.http(ip,path);
-    String back = "";
+    late Uint8List back;
+    LogData().d(tag, 'getDatabaseImage');
     var response = await http.post(url,headers: headerMap ,body: json);
     if(response.statusCode == 200) {
       LogData().d(tag, 'statusCode 200');
-      back = Utf8Decoder().convert(response.bodyBytes);
+      back = response.bodyBytes;
     }
     LogData().dd(tag, 'back', back.toString());
     return back;

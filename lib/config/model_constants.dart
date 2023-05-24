@@ -12,6 +12,7 @@ const String sType = "type";
 const String sStatus = "status";
 const String sImage = "image";
 const String sImages = "images";
+const String sImageName = "image_name";
 const String sUser = "user";
 const String sAlbum = "album",sAlbumList = "albumList";
 

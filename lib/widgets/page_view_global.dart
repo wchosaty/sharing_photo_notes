@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:sharing_photo_notes/config/http_constants.dart';
@@ -30,6 +31,7 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
   late String username;
   var viewportFraction = 0.85;
   late List<Photo> photos;
+  late List<Uint8List> images;
   double? pageOffset = 0;
   late List<TransferImage> transferList;
 
@@ -42,7 +44,8 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
         pageOffset = pageController!.page!;
       }));
     print("PageViewGlobal ini");
-
+    photos = [];
+    images = [];
     initialData();
   }
 
@@ -51,16 +54,25 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(left: 1, right: 1),
-      child: SizedBox(width: 100, height: 100,
-        child: PageView.builder(
-            controller: pageController,
-            itemCount: photos.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: EdgeInsets.all(3),
-                child: Text("${photos[index].album_name}"),
-              );
-            }),
+      child: Column(
+        children: [
+          Text(album_name),
+          SizedBox(width: 200, height: 200,
+            child: PageView.builder(
+                controller: pageController,
+                itemCount: images.length,
+                itemBuilder: (context, index) {
+                  Map<String,String> header = {sAction: sQuery, sContent: sAlbum};
+                  Map<String, String> map = {sType: sImage, sAlbumName: album_name,sUsername: username, sImageName: photos[index].id.toString()};
+                  String json = jsonEncode(map);
+                  LogData().dd(tag, "json", json);
+                  return Padding(
+                    padding: const EdgeInsets.all(1),
+                    child: Image.memory(images[index],width: 50,height: 50,),
+                  );
+                }),
+          ),
+        ],
       )
     );
   }
@@ -71,7 +83,7 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
     print("album_name : $album_name");
     print("username : $username");
     Map<String, String> headerAlbum = {sAction: sQuery, sContent: sAlbum};
-    Map<String, String> map = {sType: sAlbumName, sAlbumName: album_name,sUsername: username};
+    Map<String, String> map = {sType: sAlbum, sAlbumName: album_name,sUsername: username};
     String jsonAlbum = jsonEncode(map);
     LogData().dd(tag, 'jsonAlbum', jsonAlbum);
    var back = await HttpConnection().toServer(
@@ -87,6 +99,22 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
      photos.addAll(backAlbum.list);
      setState(() {
      });
+     getImage();
    }
+  }
+
+  Future getImage() async {
+    List<Uint8List> readImages = [];
+    for(int i=0; i < photos.length; i++){
+      Map<String,String> header = {sAction: sQuery, sContent: sAlbum};
+      Map<String, String> map = {sType: sImage, sAlbumName: album_name,sUsername: username, sImageName: photos[i].id.toString()};
+      String json = jsonEncode(map);
+      Uint8List? readImage = await HttpConnection().getDatabaseImage(ip: urlIp, path: urlServerAlbumPath,json: json,headerMap: header);
+      readImages.add(readImage!);
+    }
+    images = [];
+    setState(() {
+      images.addAll(readImages);
+    });
   }
 }
