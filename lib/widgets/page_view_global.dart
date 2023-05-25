@@ -32,7 +32,7 @@ class _PageViewGlobalState extends State<PageViewGlobal> {
   double? pageOffset = 0;
   late List<Photo> photos;
   late List<Uint8List> images;
-  late List<TransferImage> transferList;
+  // late List<TransferImage> transferList;
 
   @override
   void initState() {

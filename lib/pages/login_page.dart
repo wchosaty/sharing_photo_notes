@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,6 +9,7 @@ import 'package:sharing_photo_notes/config/http_constants.dart';
 import 'package:sharing_photo_notes/config/model_constants.dart';
 import 'package:sharing_photo_notes/config/string_constants.dart';
 import 'package:sharing_photo_notes/config/widget_constants.dart';
+import 'package:sharing_photo_notes/models/transfer_image.dart';
 import 'package:sharing_photo_notes/models/user.dart';
 import 'package:sharing_photo_notes/utils/http_connection.dart';
 import 'package:sharing_photo_notes/utils/log_data.dart';
@@ -24,7 +26,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   static const tag = 'tag _LoginPageState';
-  var image;
+  var avatar;
   String systemMessage = "";
   TextEditingController userNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -60,26 +62,18 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  MaterialButton(
-                    shape: const CircleBorder(
-                        side: BorderSide(width: 2.5, color: Colors.black)),
-                    onPressed: () {
+                  InkWell(
+                    onTap: () {
                       getImage();
                     },
-                    child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: image != null
-                          ? Image.file(
-                              image,
-                              width: 70.0,
-                              height: 70.0,
-                              fit: BoxFit.fitHeight,
-                            )
-                          : Image.asset(
-                              imageAccount,
-                              fit: BoxFit.cover,
-                              color: Colors.black,
-                            ),
+                    child: avatar != null
+                        ? ClipOval(
+                        child: Image.file(avatar,fit: BoxFit.cover,height: 100,width: 100,),
+                        )
+                        : Image.asset(
+                      imageAccount,
+                      fit: BoxFit.cover,
+                      color: Colors.black,
                     ),
                   ),
                   ComTextField(
@@ -135,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
     XFile? imageSelect = await ImagePicker().pickImage(
       source: source,
     );
-    image = File(imageSelect!.path);
+    avatar = File(imageSelect!.path);
     setState(() {});
   }
 
@@ -163,15 +157,29 @@ class _LoginPageState extends State<LoginPage> {
 
     ///驗證
     if (back.isNotEmpty) {
-      String token = jsonEncode(back);
+      // String token = jsonEncode(back).trim();
+      String token = back.trim();
+
       LogData().dd(tag, "token", token);
 
+      /// 上傳avatar
+      var image_name = int.parse(token);
+     Uint8List avatarImage = await avatar.readAsBytes();
+      TransferImage transfer = TransferImage(image: avatarImage, image_name: image_name, username: username);
+      String json = jsonEncode(transfer);
+      LogData().dd(tag, "json avatar", json);
+      Map<String, String> headerMap = {sAction: sInsert, sContent: sImage,};
+      String backAvatar = await HttpConnection().toServer(
+          ip: urlIp, path: urlServerUserPath, json: json, headerMap: headerMap);
+      if(backAvatar.isNotEmpty) {
+        LogData().dd(tag, "backAvatar.isNotEmpty", backAvatar);
+      }
       ///儲存
-      saveUser(token);
-      clearTextField();
-      systemMessage = "";
-      passwordController.text = "";
-      Navigator.of(context).pushNamed('/Personal', arguments: user);
+      // saveUser(token);
+      // clearTextField();
+      // systemMessage = "";
+      // passwordController.text = "";
+      // Navigator.of(context).pushReplacementNamed('/Personal', arguments: user);
       // Navigator.of(context).pushNamed('/Edit');
     } else {
       systemMessage = sFail;
