@@ -12,6 +12,7 @@ import 'package:sharing_photo_notes/config/widget_constants.dart';
 import 'package:sharing_photo_notes/main.dart';
 import 'package:sharing_photo_notes/models/transfer_image.dart';
 import 'package:sharing_photo_notes/models/user.dart';
+import 'package:sharing_photo_notes/pages/home_page.dart';
 import 'package:sharing_photo_notes/utils/access_file.dart';
 import 'package:sharing_photo_notes/utils/http_connection.dart';
 import 'package:sharing_photo_notes/utils/log_data.dart';
@@ -146,7 +147,6 @@ class _LoginPageState extends State<LoginPage> {
     String username = userNameController.text.trim();
     String pass = passwordController.text.trim();
     String nick = nicknameController.text.trim();
-    MyApp.localUser = username;
     User user = User(
         username: username,
         password: pass,
@@ -179,12 +179,12 @@ class _LoginPageState extends State<LoginPage> {
         }
         AccessFile().saveImage(username,avatarImage);
       }
+      MyApp.localUser = username;
       clearTextField();
       systemMessage = "";
       systemMessage = "";
       passwordController.text = "";
-      Navigator.of(context).pushReplacementNamed('/Personal');
-      // Navigator.of(context).pushReplacementNamed('/Personal', arguments: user);
+      Navigator.pushReplacement(context as BuildContext, MaterialPageRoute(builder: (context) => HomePage()));
     } else {
       systemMessage = sFail;
     }
