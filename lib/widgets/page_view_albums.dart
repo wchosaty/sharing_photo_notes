@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:sharing_photo_notes/models/Photo.dart';
 import 'package:sharing_photo_notes/models/album.dart';
-import 'package:sharing_photo_notes/utils/access_album_lists.dart';
+import 'package:sharing_photo_notes/utils/access_file.dart';
 
 class PageViewAlbums extends StatefulWidget {
   final String path;
@@ -72,7 +72,7 @@ class _PageViewAlbumsState extends State<PageViewAlbums> {
   }
 
   Future initialData() async {
-    Directory dir = await AccessAlbumLists.getPath(widget.path, false);
+    Directory dir = await AccessFile().getPath(widget.path, false);
     var file = File("${dir.path}");
     bool exist = await file.exists();
     if (exist) {

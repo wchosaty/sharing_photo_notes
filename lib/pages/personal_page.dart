@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sharing_photo_notes/config/colors_constants.dart';
 import 'package:sharing_photo_notes/main.dart';
 import 'package:sharing_photo_notes/models/album_list.dart';
-import 'package:sharing_photo_notes/utils/access_album_lists.dart';
+import 'package:sharing_photo_notes/utils/access_file.dart';
 import 'package:sharing_photo_notes/utils/log_data.dart';
 import 'package:sharing_photo_notes/widgets/page_view_albums.dart';
 
@@ -64,7 +64,7 @@ class _PersonalPageState extends State<PersonalPage> {
     // localUsername = ModalRoute.of(context)?.settings.arguments as String;
       localUsername = MyApp.localUser;
     LogData().dd(tag, "localUsername", localUsername);
-    var reaList = await AccessAlbumLists.getAlbumLists(localUsername);
+    var reaList = await AccessFile().getAlbumLists(localUsername);
     LogData().dd(tag, "reaList length", reaList.length.toString());
     LogData().dd(tag, "listSizeLog length", listSizeLog.toString());
     if (reaList.length != listSizeLog && reaList.length >= 0) {

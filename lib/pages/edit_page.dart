@@ -17,7 +17,7 @@ import 'package:sharing_photo_notes/models/Photo.dart';
 import 'package:sharing_photo_notes/models/album.dart';
 import 'package:sharing_photo_notes/models/album_list.dart';
 import 'package:sharing_photo_notes/models/transfer_image.dart';
-import 'package:sharing_photo_notes/utils/access_album_lists.dart';
+import 'package:sharing_photo_notes/utils/access_file.dart';
 import 'package:sharing_photo_notes/utils/http_connection.dart';
 import 'package:sharing_photo_notes/utils/log_data.dart';
 import 'package:sharing_photo_notes/widgets/com_text_field.dart';
@@ -292,7 +292,7 @@ class _EditPageState extends State<EditPage> {
     String dir = "$localUsername/$albumName";
 
     /// "$localUsername/$albumName/${id.toString()}.png";
-    Directory directory = await AccessAlbumLists.getPath(dir, true);
+    Directory directory = await AccessFile().getPath(dir, true);
     print("directory :${directory.path}");
     List<TransferImage> transferList = [];
     for (int i = 0; i < images.length; i++) {
@@ -363,10 +363,10 @@ class _EditPageState extends State<EditPage> {
 
   Future<void> saveFile(Album album, AlbumList albumList) async {
     Album albumEdit = album;
-    Directory dirUsername = await AccessAlbumLists.getPath(localUsername, true);
+    Directory dirUsername = await AccessFile().getPath(localUsername, true);
     File fileAlbumList = File("${dirUsername.path}/$sAlbumList");
     String temp = "${localUsername}/${albumName}";
-    Directory dirAlbumName = await AccessAlbumLists.getPath(temp, true);
+    Directory dirAlbumName = await AccessFile().getPath(temp, true);
     LogData().dd(tag, "images/album.list length",
         "${images.length}/${album.list.length}");
 
@@ -382,7 +382,7 @@ class _EditPageState extends State<EditPage> {
     file.writeAsString(json);
 
     /// save albumLists
-    albumLists = await AccessAlbumLists.getAlbumLists(localUsername);
+    albumLists = await AccessFile().getAlbumLists(localUsername);
     LogData().dd(tag, "albumListsRead length", albumLists.length.toString());
     albumLists.add(albumList);
     String writeString = jsonEncode(albumLists);

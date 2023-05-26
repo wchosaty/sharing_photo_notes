@@ -11,6 +11,7 @@ import 'package:sharing_photo_notes/config/string_constants.dart';
 import 'package:sharing_photo_notes/config/widget_constants.dart';
 import 'package:sharing_photo_notes/models/transfer_image.dart';
 import 'package:sharing_photo_notes/models/user.dart';
+import 'package:sharing_photo_notes/utils/access_file.dart';
 import 'package:sharing_photo_notes/utils/http_connection.dart';
 import 'package:sharing_photo_notes/utils/log_data.dart';
 import 'package:sharing_photo_notes/widgets/com_text_field.dart';
@@ -157,30 +158,31 @@ class _LoginPageState extends State<LoginPage> {
 
     ///驗證
     if (back.isNotEmpty) {
-      // String token = jsonEncode(back).trim();
       String token = back.trim();
-
       LogData().dd(tag, "token", token);
+      saveUser(token);
 
-      /// 上傳avatar
+      /// avatar
       var image_name = int.parse(token);
-     Uint8List avatarImage = await avatar.readAsBytes();
-      TransferImage transfer = TransferImage(image: avatarImage, image_name: image_name, username: username);
-      String json = jsonEncode(transfer);
-      LogData().dd(tag, "json avatar", json);
-      Map<String, String> headerMap = {sAction: sInsert, sContent: sImage,};
-      String backAvatar = await HttpConnection().toServer(
-          ip: urlIp, path: urlServerUserPath, json: json, headerMap: headerMap);
-      if(backAvatar.isNotEmpty) {
-        LogData().dd(tag, "backAvatar.isNotEmpty", backAvatar);
+      if(avatar != null){
+        Uint8List avatarImage = await avatar.readAsBytes();
+        TransferImage transfer = TransferImage(image: avatarImage, image_name: image_name, username: username);
+        String json = jsonEncode(transfer);
+        LogData().dd(tag, "json avatar", json);
+        Map<String, String> headerMap = {sAction: sInsert, sContent: sImage,};
+        String backAvatar = await HttpConnection().toServer(
+            ip: urlIp, path: urlServerUserPath, json: json, headerMap: headerMap);
+        if(backAvatar.isNotEmpty) {
+          LogData().dd(tag, "backAvatar.isNotEmpty", backAvatar);
+        }
+        AccessFile().saveImage(username,avatarImage);
       }
-      ///儲存
-      // saveUser(token);
-      // clearTextField();
-      // systemMessage = "";
-      // passwordController.text = "";
-      // Navigator.of(context).pushReplacementNamed('/Personal', arguments: user);
-      // Navigator.of(context).pushNamed('/Edit');
+      clearTextField();
+      systemMessage = "";
+      systemMessage = "";
+      passwordController.text = "";
+      Navigator.of(context).pushReplacementNamed('/Personal', arguments: user);
+
     } else {
       systemMessage = sFail;
     }
@@ -193,7 +195,7 @@ class _LoginPageState extends State<LoginPage> {
     String nick = nicknameController.text.trim();
   }
 
-  void saveUser(String token) {
+  Future  saveUser(String token) async{
     String userName = userNameController.text.trim();
     String nickname = nicknameController.text.trim();
     preferences.setString(sUsername, userName);
@@ -211,4 +213,6 @@ class _LoginPageState extends State<LoginPage> {
   void initialData() async{
     preferences = await SharedPreferences.getInstance();
   }
+
+
 }
