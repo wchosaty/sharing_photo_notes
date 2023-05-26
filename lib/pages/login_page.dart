@@ -9,6 +9,7 @@ import 'package:sharing_photo_notes/config/http_constants.dart';
 import 'package:sharing_photo_notes/config/model_constants.dart';
 import 'package:sharing_photo_notes/config/string_constants.dart';
 import 'package:sharing_photo_notes/config/widget_constants.dart';
+import 'package:sharing_photo_notes/main.dart';
 import 'package:sharing_photo_notes/models/transfer_image.dart';
 import 'package:sharing_photo_notes/models/user.dart';
 import 'package:sharing_photo_notes/utils/access_file.dart';
@@ -145,6 +146,7 @@ class _LoginPageState extends State<LoginPage> {
     String username = userNameController.text.trim();
     String pass = passwordController.text.trim();
     String nick = nicknameController.text.trim();
+    MyApp.localUser = username;
     User user = User(
         username: username,
         password: pass,
@@ -181,8 +183,8 @@ class _LoginPageState extends State<LoginPage> {
       systemMessage = "";
       systemMessage = "";
       passwordController.text = "";
-      Navigator.of(context).pushReplacementNamed('/Personal', arguments: user);
-
+      Navigator.of(context).pushReplacementNamed('/Personal');
+      // Navigator.of(context).pushReplacementNamed('/Personal', arguments: user);
     } else {
       systemMessage = sFail;
     }
@@ -193,6 +195,7 @@ class _LoginPageState extends State<LoginPage> {
     String user = userNameController.text.trim();
     String pass = passwordController.text.trim();
     String nick = nicknameController.text.trim();
+    MyApp.localUser = user;
   }
 
   Future  saveUser(String token) async{

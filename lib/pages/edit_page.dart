@@ -47,7 +47,6 @@ class _EditPageState extends State<EditPage> {
   void initState() {
     super.initState();
 
-    localUsername = '';
     albumName = '';
     note = '';
     images = [];
@@ -63,7 +62,7 @@ class _EditPageState extends State<EditPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (MyApp.localUser.isNotEmpty && MyApp.localUser != localUsername) {
+    if ( (MyApp.localUser.isNotEmpty) && (MyApp.localUser != localUsername )) {
       LogData().d(tag, "MyApp.localUser.isNotEmpty");
       initialData();
     }
@@ -285,25 +284,26 @@ class _EditPageState extends State<EditPage> {
   }
 
   Future<void> _uploadAlbum() async {
+      print("MyApp.localUser : ${MyApp.localUser}");
+      print("localUsername : ${localUsername}");
+      LogData().dd(tag, "uploadAlbum MyApp.localUser",MyApp.localUser);
     String albumName = albumNameController.text.trim();
     String note = noteController.text.trim();
     List<Photo> list = [];
     int id = DateTime.now().microsecondsSinceEpoch;
-    String dir = "$localUsername/$albumName";
-
+    Directory directoryUsername = await AccessFile().getPath(localUsername, true);
+    String dirAlbum = "$localUsername/$albumName";
+    Directory directoryAlbum = await AccessFile().getPath(dirAlbum, true);
     /// "$localUsername/$albumName/${id.toString()}.png";
-    Directory directory = await AccessFile().getPath(dir, true);
-    print("directory :${directory.path}");
     List<TransferImage> transferList = [];
     for (int i = 0; i < images.length; i++) {
       Uint8List image = await images[i].readAsBytes();
       int image_name = (id + i);
       Photo photo = Photo(
-          // image: image,
           note: note,
           album_name: albumName,
           id: image_name,
-          image_path: '${directory.path}/${(id + i)}.png');
+          image_path: '${directoryAlbum.path}/${(id + i)}.png');
       list.add(photo);
       TransferImage transfer = TransferImage(
           image: image, image_name: image_name, username: localUsername);
@@ -354,8 +354,9 @@ class _EditPageState extends State<EditPage> {
             json: jsonTransfer,
             headerMap: headerTransferImage);
         if (backTransferImage.isNotEmpty) {
+          print("backTransferImage.isNotEmpty");
           await saveFile(album, albumList);
-          Navigator.of(context).pop();
+          Navigator.pop(context,sCreate);
         }
       }
     }
@@ -367,8 +368,7 @@ class _EditPageState extends State<EditPage> {
     File fileAlbumList = File("${dirUsername.path}/$sAlbumList");
     String temp = "${localUsername}/${albumName}";
     Directory dirAlbumName = await AccessFile().getPath(temp, true);
-    LogData().dd(tag, "images/album.list length",
-        "${images.length}/${album.list.length}");
+    LogData().dd(tag, "images/album.list length", "${images.length}/${album.list.length}");
 
     /// save image
     for (int i = 0; i < images.length; i++) {
@@ -390,7 +390,7 @@ class _EditPageState extends State<EditPage> {
   }
 
   Future initialData() async {
-    localUsername = ModalRoute.of(context)?.settings.arguments as String;
+    localUsername = MyApp.localUser;
     LogData().dd(tag, "localUsername", localUsername);
   }
 }

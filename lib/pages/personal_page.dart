@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sharing_photo_notes/config/colors_constants.dart';
+import 'package:sharing_photo_notes/config/string_constants.dart';
 import 'package:sharing_photo_notes/main.dart';
 import 'package:sharing_photo_notes/models/album_list.dart';
 import 'package:sharing_photo_notes/utils/access_file.dart';
@@ -29,11 +30,8 @@ class _PersonalPageState extends State<PersonalPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("personal build");
     ///解析換頁帶來資料
-    // if (ModalRoute.of(context)?.settings.arguments != null) {
-    //   LogData().d(tag, "Widget build");
-    //   initialData();
-    // }
     if (MyApp.localUser.isNotEmpty && MyApp.localUser != localUsername) {
       LogData().d(tag, "MyApp.localUser.isNotEmpty");
       initialData();
@@ -44,7 +42,8 @@ class _PersonalPageState extends State<PersonalPage> {
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.of(context).pushNamed('/Edit', arguments: localUsername);
+            goToEdit(context);
+
           },
           child: const Icon(Icons.add),
         ),
@@ -61,9 +60,20 @@ class _PersonalPageState extends State<PersonalPage> {
 
   Future initialData() async {
     LogData().d(tag, "initialData");
-    // localUsername = ModalRoute.of(context)?.settings.arguments as String;
       localUsername = MyApp.localUser;
     LogData().dd(tag, "localUsername", localUsername);
+    getAlbumLists();
+  }
+
+  void goToEdit(BuildContext context) async{
+    var status = await Navigator.pushNamed(context,'/Edit');
+    if(status != null) {
+      LogData().dd(tag, "goToEdit","$status");
+      print("goToEdit : $status");
+      getAlbumLists();
+    }
+  }
+  Future getAlbumLists() async{
     var reaList = await AccessFile().getAlbumLists(localUsername);
     LogData().dd(tag, "reaList length", reaList.length.toString());
     LogData().dd(tag, "listSizeLog length", listSizeLog.toString());
@@ -75,5 +85,5 @@ class _PersonalPageState extends State<PersonalPage> {
         listSizeLog = albumLists.length;
       });
     }
-  }
+}
 }
