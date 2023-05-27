@@ -71,12 +71,13 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: avatar != null
                         ? ClipOval(
-                        child: Image.file(avatar,fit: BoxFit.cover,height: 100,width: 100,),
+                        child: Image.file(avatar,fit: BoxFit.cover,height: 50,width: 50,),
                         )
                         : Image.asset(
                       imageAccount,
                       fit: BoxFit.cover,
                       color: Colors.black,
+                      height: 50,width: 50,
                     ),
                   ),
                   ComTextField(
