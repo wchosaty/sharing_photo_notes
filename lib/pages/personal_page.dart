@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sharing_photo_notes/config/colors_constants.dart';
-import 'package:sharing_photo_notes/config/string_constants.dart';
 import 'package:sharing_photo_notes/main.dart';
 import 'package:sharing_photo_notes/models/album_list.dart';
 import 'package:sharing_photo_notes/utils/access_file.dart';
@@ -30,7 +29,6 @@ class _PersonalPageState extends State<PersonalPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("personal build");
     ///解析換頁帶來資料
     if (MyApp.localUser.isNotEmpty && MyApp.localUser != localUsername) {
       LogData().d(tag, "MyApp.localUser.isNotEmpty");

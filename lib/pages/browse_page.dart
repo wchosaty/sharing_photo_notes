@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:sharing_photo_notes/config/colors_constants.dart';
 import 'package:sharing_photo_notes/config/http_constants.dart';
 import 'package:sharing_photo_notes/config/model_constants.dart';
@@ -23,6 +24,8 @@ class _BrowsePageState extends State<BrowsePage> {
   late String localUsername;
   late int oldestAlbumId;
   late int latestAlbumId;
+  late double cacheHeight = 0;
+  late double screenHeight = 0;
 
   @override
   void initState() {
@@ -40,10 +43,11 @@ class _BrowsePageState extends State<BrowsePage> {
 
     return Scaffold(
         backgroundColor: colorBackground,
-        // bottomNavigationBar: const MainBottomNavigationBar(),
         body: Container(
           margin: const EdgeInsets.all(1),
           child: ListView.builder(
+            physics: const ClampingScrollPhysics(),
+            cacheExtent: cacheHeight,
             itemCount: albumLists.length,
               itemBuilder: (context, i) {
               return PageViewGlobal(albumList: albumLists[i]);
@@ -74,10 +78,12 @@ class _BrowsePageState extends State<BrowsePage> {
       }
       albumLists = [];
       albumLists.addAll(list);
-      print("albumLists size : ${albumLists.length}");
+      if(cacheHeight <= 0){
+        screenHeight = MediaQuery.of(context).size.height;
+        cacheHeight = screenHeight * 1.5;
+      }
       setState(() {
       });
-
     }else LogData().d(tag, "backCloudAlbumList.isEmpty");
   }
 }

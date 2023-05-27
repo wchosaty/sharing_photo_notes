@@ -7,6 +7,7 @@ const String sInsert = "insert";
 const String sUpdate = "update";
 const String sDelete = "delete";
 const String sQuery = "query";
+const String sAvatar = "avatar";
 
 const String sType = "type";
 const String sStatus = "status";
