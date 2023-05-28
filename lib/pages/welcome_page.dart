@@ -15,6 +15,8 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   static const tag = 'tag _WelcomePageState';
   late SharedPreferences preferences;
+  bool toHomePageFlag = false;
+  bool toLoginPageFlag = false;
 
   @override
   void initState() {
@@ -23,10 +25,28 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("welcome"),
-      ),
+    return FutureBuilder(
+      future: Future.delayed(const Duration(milliseconds: 500)),
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        if(toLoginPageFlag){
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: LoginPage(),
+          );
+        }
+        // Main
+        else if(toHomePageFlag){
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: HomePage(),
+          );
+        }else{
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: WaitPage(),
+          );
+        }
+      },
     );
   }
 
@@ -44,12 +64,14 @@ class _WelcomePageState extends State<WelcomePage> {
       LogData().d(tag, '已登入');
       /// pushReplacementNamed 會清除push的stack頁面 /pushRepNamed 不會
       MyApp.localUser = username.trim();
-      setState(() {
-       Navigator.pushReplacement(context as BuildContext, MaterialPageRoute(builder: (context) => HomePage()));
-      });
+      // setState(() {});
+       // Navigator.pushReplacement(context as BuildContext, MaterialPageRoute(builder: (context) => HomePage()));
+        toHomePageFlag = true;
+
     } else {
       LogData().d(tag, '無使用者');
-      Navigator.pushReplacement(context as BuildContext, MaterialPageRoute(builder: (context) => LoginPage()));
+      // Navigator.pushReplacement(context as BuildContext, MaterialPageRoute(builder: (context) => LoginPage()));
+      toLoginPageFlag = true;
     }
   }
 
@@ -59,5 +81,19 @@ class _WelcomePageState extends State<WelcomePage> {
     if (s.isNotEmpty) returnVal = true;
     return returnVal;
   }
+}
 
+class WaitPage extends StatelessWidget {
+  const WaitPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(100),
+      child: Column(children: [
+        Text("Welcome"),
+        Text(MyApp.localUser),
+      ],),
+    );
+  }
 }
