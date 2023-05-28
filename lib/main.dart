@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         '/Edit': (context) => EditPage(),
         '/Browse': (context) => BrowsePage(),
       },
-      home: Scaffold(
+      home: const Scaffold(
         resizeToAvoidBottomInset: false,
         body: SafeArea(
           child: WelcomePage(),
