@@ -75,8 +75,12 @@ class _EditPageState extends State<EditPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text(
-          'Edit',
-          style: TextStyle(color: Colors.black),
+          sEditPhoto,
+          style: TextStyle(
+              color: colorTitle,
+              letterSpacing: dTitleLetterSpacing,
+              fontSize: dTitleFontSize,
+          ),
         ),
       ),
       body: Container(

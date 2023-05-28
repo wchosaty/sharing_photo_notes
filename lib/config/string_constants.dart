@@ -5,3 +5,4 @@ const String sSignUp = 'Sign Up';
 const String sSignIn = 'Sign In';
 const String sEmpty = 'empty';
 const String sCreate = 'create';
+const String sEditPhoto = '編輯相簿';

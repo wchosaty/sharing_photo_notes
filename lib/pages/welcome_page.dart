@@ -30,19 +30,22 @@ class _WelcomePageState extends State<WelcomePage> {
       future: Future.delayed(const Duration(milliseconds: 2500)),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (toLoginPageFlag) {
-          return MaterialApp(
+          /// Login
+          return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: LoginPage(),
           );
         }
         // Main
         else if (toHomePageFlag) {
-          return MaterialApp(
+          /// 主畫面
+          return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: HomePage(),
           );
         } else {
-          return MaterialApp(
+          /// 等待歡迎畫面
+          return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: WaitPage(),
           );
@@ -90,22 +93,31 @@ class WaitPage extends StatelessWidget {
   Widget build(BuildContext context) {
     double top = MediaQuery.of(context).size.height * 0.4;
     double left = MediaQuery.of(context).size.width * 0.25;
+
+    /// 歡迎畫面
     return Container(
       margin: EdgeInsets.only(top: top, left: left),
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.75,
-          child: AnimatedTextKit(
-            pause : const Duration(milliseconds: 500),
-            animatedTexts: [
-              ColorizeAnimatedText('Welcome!',
-                  textStyle: const TextStyle(
-                      letterSpacing: 2,fontSize: 40.0, fontFamily: 'Agne',decoration: TextDecoration.none),
-                colors: [Colors.indigoAccent, Colors.black, Colors.yellow, Colors.red,]
-              ),
-            ],
-            isRepeatingAnimation: true,
-          ),
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.75,
+        child: AnimatedTextKit(
+          pause: const Duration(milliseconds: 500),
+          animatedTexts: [
+            ColorizeAnimatedText('Welcome!',
+                textStyle: const TextStyle(
+                    letterSpacing: 2,
+                    fontSize: 40.0,
+                    fontFamily: 'Agne',
+                    decoration: TextDecoration.none),
+                colors: [
+                  Colors.indigoAccent,
+                  Colors.black,
+                  Colors.yellow,
+                  Colors.red,
+                ]),
+          ],
+          isRepeatingAnimation: true,
         ),
+      ),
     );
   }
 }

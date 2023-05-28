@@ -1,5 +1,9 @@
 const int  statusPrivate = 0;
 const int  statusPublic = 1;
+const double  dTitleFontSize = 25;
+const double  dTitleLetterSpacing = 3;
+const double  dUserFontSize = 22;
+const double  dUserLetterSpacing = 1.5;
 
 const String sContent = "content";
 const String sAction = "action";

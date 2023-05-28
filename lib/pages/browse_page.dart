@@ -50,7 +50,7 @@ class _BrowsePageState extends State<BrowsePage> {
     return Scaffold(
         backgroundColor: colorBackground,
         body: Container(
-            margin: const EdgeInsets.all(1),
+            margin: const EdgeInsets.only(top: 3,left: 1,right: 1),
             child: ListView.builder(
                 physics: const ClampingScrollPhysics(),
                 cacheExtent: cacheHeight,
@@ -69,11 +69,11 @@ class _BrowsePageState extends State<BrowsePage> {
                                   height: 50,
                                 ),
                                 Positioned(
-                                    top: 3,
+                                    top: 2,
                                     left: width,
-                                    bottom: 3,
+                                    bottom: 2,
                                     child: avatars[i].isNotEmpty
-                                        ? Image.memory(avatars[i] ,width: 50,height: 50,fit: BoxFit.cover,)
+                                        ? ClipOval(child: Image.memory(avatars[i] ,width: 50,height: 50,fit: BoxFit.cover,))
                                         :Image.asset(
                                       imageAccount,
                                       fit: BoxFit.cover,
@@ -149,13 +149,10 @@ class _BrowsePageState extends State<BrowsePage> {
   Future xxgetAvatars(List<AlbumList> list) async {
     Map<String, String> header = {sAction: sQuery, sContent: sAvatar};
     String json = jsonEncode(list);
-    print("7777");
     var readAvatar = await HttpConnection().getDatabaseImages(
         ip: urlIp, path: urlServerUserPath, json: json, headerMap: header);
     avatars = [];
-    print("88888");
     var readList = await jsonDecode(readAvatar);
-    print("9999");
     for (int i = 0; i < readList.length; i++) {
       TransferImage.fromJson(readList[i]);
     }
