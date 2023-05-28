@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sharing_photo_notes/main.dart';
@@ -26,21 +27,21 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Future.delayed(const Duration(milliseconds: 500)),
+      future: Future.delayed(const Duration(milliseconds: 2500)),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if(toLoginPageFlag){
+        if (toLoginPageFlag) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             home: LoginPage(),
           );
         }
         // Main
-        else if(toHomePageFlag){
+        else if (toHomePageFlag) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             home: HomePage(),
           );
-        }else{
+        } else {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             home: WaitPage(),
@@ -62,12 +63,11 @@ class _WelcomePageState extends State<WelcomePage> {
         checkString(token) &&
         login) {
       LogData().d(tag, '已登入');
+
       /// pushReplacementNamed 會清除push的stack頁面 /pushRepNamed 不會
       MyApp.localUser = username.trim();
-      // setState(() {});
-       // Navigator.pushReplacement(context as BuildContext, MaterialPageRoute(builder: (context) => HomePage()));
-        toHomePageFlag = true;
-
+      // Navigator.pushReplacement(context as BuildContext, MaterialPageRoute(builder: (context) => HomePage()));
+      toHomePageFlag = true;
     } else {
       LogData().d(tag, '無使用者');
       // Navigator.pushReplacement(context as BuildContext, MaterialPageRoute(builder: (context) => LoginPage()));
@@ -88,12 +88,24 @@ class WaitPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double top = MediaQuery.of(context).size.height * 0.4;
+    double left = MediaQuery.of(context).size.width * 0.25;
     return Container(
-      margin: EdgeInsets.all(100),
-      child: Column(children: [
-        Text("Welcome"),
-        Text(MyApp.localUser),
-      ],),
+      margin: EdgeInsets.only(top: top, left: left),
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.75,
+          child: AnimatedTextKit(
+            pause : const Duration(milliseconds: 500),
+            animatedTexts: [
+              ColorizeAnimatedText('Welcome!',
+                  textStyle: const TextStyle(
+                      letterSpacing: 2,fontSize: 40.0, fontFamily: 'Agne',decoration: TextDecoration.none),
+                colors: [Colors.indigoAccent, Colors.black, Colors.yellow, Colors.red,]
+              ),
+            ],
+            isRepeatingAnimation: true,
+          ),
+        ),
     );
   }
 }
