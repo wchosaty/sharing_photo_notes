@@ -79,7 +79,6 @@ class _PersonalPageState extends State<PersonalPage> {
                       child: ListView.builder(
                           itemCount: albumLists.length,
                           itemBuilder: (context, i) {
-                            print("albumLists[i].album_name : ${albumLists[i].album_name}");
                             return Column(
                               children : [
                                 Container(
@@ -163,17 +162,17 @@ class _PersonalPageState extends State<PersonalPage> {
       avatarWidget = Image.memory(temp, fit: BoxFit.cover,
         width: 60,
         height: 60,);
+
     }
     getAlbumLists();
+
   }
 
   void goToEdit(BuildContext context) async {
     result = await Navigator.push(
         context, MaterialPageRoute(builder: (context) => EditPage()));
     if (result.isNotEmpty) {
-      setState(() {
         getAlbumLists();
-      });
     }
   }
 
@@ -183,12 +182,11 @@ class _PersonalPageState extends State<PersonalPage> {
     LogData().dd(tag, "listSizeLog length", listSizeLog.toString());
     if (reaList.length != listSizeLog && reaList.length >= 0) {
       LogData().d(tag, "if(reaList)");
-      setState(() {
         LogData().d(tag, "setState");
         albumLists = reaList;
         listSizeLog = albumLists.length;
-      });
     }
+    setState(() {});
   }
 
   Future  _logOut() async{

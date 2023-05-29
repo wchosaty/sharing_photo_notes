@@ -157,7 +157,9 @@ class _EditPageState extends State<EditPage> {
                     children: [
                       /// 返回
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
                         radius: dIconSize / 2,
                         splashColor: colorClick,
                         child: Image.asset(
@@ -288,8 +290,6 @@ class _EditPageState extends State<EditPage> {
   }
 
   Future<void> _uploadAlbum() async {
-      print("MyApp.localUser : ${MyApp.localUser}");
-      print("localUsername : ${localUsername}");
       LogData().dd(tag, "uploadAlbum MyApp.localUser",MyApp.localUser);
     String albumName = albumNameController.text.trim();
     String note = noteController.text.trim();
@@ -358,7 +358,6 @@ class _EditPageState extends State<EditPage> {
             json: jsonTransfer,
             headerMap: headerTransferImage);
         if (backTransferImage.isNotEmpty) {
-          print("backTransferImage.isNotEmpty");
           await saveFile(album, albumList);
           Navigator.pop(context,sCreate);
         }

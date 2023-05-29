@@ -12,13 +12,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   static const tag = 'tag _HomePageState';
-  late Widget currentPage;
-  int _currentIndex = 0;
-  final pages = [BrowsePage(), PersonalPage()];
+  late int _currentIndex;
+  final pages = [BrowsePage(),PersonalPage()];
 
   @override
   void initState() {
-    currentPage = PersonalPage();
+    _currentIndex = 1;
   }
 
   @override

@@ -201,7 +201,6 @@ class _LoginPageState extends State<LoginPage> {
     String keyInUsername = userNameController.text.trim();
     String pass = passwordController.text.trim();
     String token = preferences.getString(sToken) ?? "";
-    print("xxxx");
     if(token.isNotEmpty ) {
       LogData().dd(tag, "token", token);
       User user = User(

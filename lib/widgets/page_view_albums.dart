@@ -79,7 +79,6 @@ class _PageViewAlbumsState extends State<PageViewAlbums> {
       String temp = await file.readAsString();
       Map<String, dynamic> backMap = await jsonDecode(temp);
       album = Album.fromJson(backMap);
-      print("path : ${album.list[0].image_path}");
       if (album.list.isNotEmpty && album.list.length > 0) {
         setState(() {
           viewList = album.list;
