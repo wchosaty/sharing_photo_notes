@@ -61,7 +61,7 @@ class _BrowsePageState extends State<BrowsePage> {
                       child: Column(
                         children: [
                           Container(
-                            margin: EdgeInsets.only(top: 1, bottom: 1),
+                            margin: const EdgeInsets.only(top: 1, bottom: 1),
                             child: Stack(
                               children: [
                                 SizedBox(

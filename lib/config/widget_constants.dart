@@ -7,6 +7,7 @@ const String imageUploadPhoto = 'assets/images/baseline_cloud_upload_black_48.pn
 const String imageUndoPhoto = 'assets/images/outline_undo_black_48.png';
 const String imageBackPhoto = 'assets/images/baseline_backspace_black_48.png';
 const String imageStartIcon = 'assets/images/start_icon_photo.png';
+const String imageLogOut = 'assets/images/baseline_logout_black_48.png';
 const double sFontSize = 18;
 const double sFontSizeAlbumName = 23;
 const double sFontSizeAlbumUsername = 18;

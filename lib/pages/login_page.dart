@@ -112,7 +112,12 @@ class _LoginPageState extends State<LoginPage> {
                               fontSize: 20,
                             ),
                           ),
-                          onPressed: () {}),
+                          onPressed: () {
+                            if (checkKeyInData(userNameController.text) &&
+                                checkKeyInData(passwordController.text) ) {
+                              logIn();
+                            }
+                          }),
                     ],
                   ),
 
@@ -192,11 +197,41 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {});
   }
 
-  void logIn() {
-    String user = userNameController.text.trim();
+  Future<void> logIn() async {
+    String keyInUsername = userNameController.text.trim();
     String pass = passwordController.text.trim();
-    String nick = nicknameController.text.trim();
-    MyApp.localUser = user;
+    String token = preferences.getString(sToken) ?? "";
+    print("xxxx");
+    if(token.isNotEmpty ) {
+      LogData().dd(tag, "token", token);
+      User user = User(
+          username: keyInUsername,
+          password: pass,
+          nickname: "",
+          token: token,
+          );
+      String json = jsonEncode(user);
+      Map<String, String> headerMap = {sAction: sQuery, sContent: sUser,sType: sLogin};
+      LogData().dd(tag, "json", json);
+      String back = await HttpConnection().toServer(
+          ip: urlIp, path: urlServerUserPath, json: json, headerMap: headerMap);
+      if(back.isNotEmpty) {
+        MyApp.localUser = keyInUsername;
+        preferences.setBool(sLogin, true);
+        Navigator.pushReplacement(context as BuildContext, MaterialPageRoute(builder: (context) => HomePage()));
+      }else {
+        LogData().dd(tag, sLogin,sFail);
+
+        setState(() {
+          clearTextField();
+          systemMessage = "";
+          systemMessage = "";
+          passwordController.text = "";
+          systemMessage = sFail;
+        });
+      }
+    }
+    
   }
 
   Future  saveUser(String token) async{

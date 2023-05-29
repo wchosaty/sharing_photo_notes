@@ -1,5 +1,5 @@
 class LogData {
-  final flag = false;
+  final flag = true;
   d(String tag,String message){
     if(flag) print('$tag : $message');
   }

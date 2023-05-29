@@ -1,10 +1,15 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sharing_photo_notes/config/colors_constants.dart';
 import 'package:sharing_photo_notes/config/model_constants.dart';
 import 'package:sharing_photo_notes/config/widget_constants.dart';
 import 'package:sharing_photo_notes/main.dart';
 import 'package:sharing_photo_notes/models/album_list.dart';
 import 'package:sharing_photo_notes/pages/edit_page.dart';
+import 'package:sharing_photo_notes/pages/login_page.dart';
 import 'package:sharing_photo_notes/utils/access_file.dart';
 import 'package:sharing_photo_notes/utils/log_data.dart';
 import 'package:sharing_photo_notes/widgets/page_view_albums.dart';
@@ -22,6 +27,8 @@ class _PersonalPageState extends State<PersonalPage> {
   late String localUsername;
   late int listSizeLog;
   String result = "";
+  late Image avatarWidget;
+  late SharedPreferences preferences;
 
   @override
   void initState() {
@@ -29,6 +36,13 @@ class _PersonalPageState extends State<PersonalPage> {
     albumLists = [];
     localUsername = '';
     listSizeLog = 0;
+    avatarWidget = Image.asset(
+      imageAccount,
+      fit: BoxFit.cover,
+      color: Colors.black,
+      width: 60,
+      height: 60,
+    );
   }
 
   @override
@@ -53,28 +67,65 @@ class _PersonalPageState extends State<PersonalPage> {
         ),
         body: Container(
           margin: const EdgeInsets.all(1),
-          child: Column(children: [
+          child: Stack(children: [
             SizedBox(
-              height: height * 0.05,
+              height: height,
               child: Stack(
                 children: [
-                  Positioned(
-                    top: height * 0.01,
-                    left: width * 0.1,
-                    child: Image.asset(
-                      imageAccount,
-                      fit: BoxFit.cover,
-                      color: Colors.black,
-                      width: 30,
-                      height: 30,
+                  SizedBox(
+                    height: height,
+                    child: Container(
+                      margin: EdgeInsets.only(top: height * 0.1),
+                      child: ListView.builder(
+                          itemCount: albumLists.length,
+                          itemBuilder: (context, i) {
+                            print("albumLists[i].album_name : ${albumLists[i].album_name}");
+                            return Column(
+                              children : [
+                                Container(
+                                  margin: const EdgeInsets.only(top: 1, bottom: 1),
+                                  child: Stack(
+                                    children: [
+                                      SizedBox(
+                                        width: width * 100,
+                                        height: 40,
+                                        child: Container(
+                                          margin: EdgeInsets.only(top: height * 0.01,left: width * 0.3 ),
+                                          child: Text(albumLists[i].album_name,
+                                              style: const TextStyle(
+                                                letterSpacing: 1.5,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: sFontSizeAlbumName,
+                                              )),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              PageViewAlbums(
+                                path: "$localUsername/${albumLists[i].album_name}/${albumLists[i].album_name}",
+                              ),
+                              ],
+                            );
+
+                          }),
+
                     ),
                   ),
+                  /// avatar
                   Positioned(
-                    top: height * 0.01,
-                    left: width * 0.20,
+                    top: height * 0.005,
+                    left: width * 0.05,
+                    child: avatarWidget,
+                  ),
+                  /// username
+                  Positioned(
+                    top: height * 0.03,
+                    left: width * 0.3,
                     child: Text(
                       MyApp.localUser,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: colorTitle,
                         letterSpacing: dUserLetterSpacing,
                         fontSize: dUserFontSize,
@@ -82,22 +133,16 @@ class _PersonalPageState extends State<PersonalPage> {
                       ),
                     ),
                   ),
+                  Positioned(
+                      top: height * 0.02,
+                      left: width * 0.85,
+                      right: 3,
+                      child: InkWell(
+                        onTap: () {
+                          _logOut();
+                        },
+                          child: Image.asset(imageLogOut,width: 50,height: 50,))),
                 ],
-              ),
-            ),
-            SizedBox(
-              height: height * 0.8,
-              child: Container(
-                margin: EdgeInsets.only(top: 3, bottom: 3),
-                padding: EdgeInsets.only(top: 5, bottom: 5),
-                child: ListView.builder(
-                    itemCount: albumLists.length,
-                    itemBuilder: (context, i) {
-                      return PageViewAlbums(
-                        path:
-                            "$localUsername/${albumLists[i].album_name}/${albumLists[i].album_name}",
-                      );
-                    }),
               ),
             ),
           ]),
@@ -108,6 +153,17 @@ class _PersonalPageState extends State<PersonalPage> {
     LogData().d(tag, "initialData");
     localUsername = MyApp.localUser;
     LogData().dd(tag, "localUsername", localUsername);
+
+    String avatarPath = "${MyApp.localUser}/$sAvatar.png";
+    Directory dir = await AccessFile().getPath(avatarPath, false);
+    var file = File("${dir.path}");
+    bool exist = await file.exists();
+    if (exist) {
+      Uint8List temp = await file.readAsBytes();
+      avatarWidget = Image.memory(temp, fit: BoxFit.cover,
+        width: 60,
+        height: 60,);
+    }
     getAlbumLists();
   }
 
@@ -119,12 +175,6 @@ class _PersonalPageState extends State<PersonalPage> {
         getAlbumLists();
       });
     }
-    // var status = await Navigator.pushNamed(context, '/Edit');
-    // if (status != null) {
-    //   LogData().dd(tag, "goToEdit", "$status");
-    //   print("goToEdit : $status");
-    //   getAlbumLists();
-    // }
   }
 
   Future getAlbumLists() async {
@@ -139,5 +189,12 @@ class _PersonalPageState extends State<PersonalPage> {
         listSizeLog = albumLists.length;
       });
     }
+  }
+
+  Future  _logOut() async{
+    preferences = await SharedPreferences.getInstance();
+    preferences.setBool(sLogin, false);
+    MyApp.localUser = "";
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
 }

@@ -21,7 +21,7 @@ class _PageViewAlbumsState extends State<PageViewAlbums> {
   late PageController? pageController;
   late Album album;
   late List<Uint8List> images;
-  var viewportFraction = 0.85;
+  var viewportFraction = 0.6;
   double? pageOffset = 0;
   List<Photo> viewList = [];
 
@@ -44,7 +44,7 @@ class _PageViewAlbumsState extends State<PageViewAlbums> {
       margin: const EdgeInsets.only(top: 10,bottom: 10),
       child: SizedBox(
         width: width * 0.95,
-        height: height * 0.5,
+        height: height * 0.3,
         child: PageView.builder(
             controller: pageController,
             itemCount: viewList.length,
