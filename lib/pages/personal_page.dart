@@ -89,7 +89,7 @@ class _PersonalPageState extends State<PersonalPage> {
                                         width: width * 100,
                                         height: 40,
                                         child: Container(
-                                          margin: EdgeInsets.only(top: height * 0.01,left: width * 0.3 ),
+                                          margin: EdgeInsets.only(top: height * 0.005,left: width * 0.3 ),
                                           child: Text(albumLists[i].album_name,
                                               style: const TextStyle(
                                                 letterSpacing: 1.5,

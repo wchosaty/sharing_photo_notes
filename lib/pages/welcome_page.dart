@@ -92,17 +92,17 @@ class WaitPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double top = MediaQuery.of(context).size.height * 0.4;
-    double left = MediaQuery.of(context).size.width * 0.25;
-
+    double width = MediaQuery.of(context).size.width * 0.15;
     /// 歡迎畫面
     return Container(
-      margin: EdgeInsets.only(top: top, left: left),
+      margin: EdgeInsets.only(top: top,left: width,right: width),
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.75,
         child: AnimatedTextKit(
           pause: const Duration(milliseconds: 500),
           animatedTexts: [
             ColorizeAnimatedText('Welcome!',
+                textAlign: TextAlign.center,
                 textStyle: const TextStyle(
                     letterSpacing: 2,
                     fontSize: 40.0,
