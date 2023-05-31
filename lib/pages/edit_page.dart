@@ -42,6 +42,7 @@ class _EditPageState extends State<EditPage> {
   var viewportFraction = 0.8;
   String localUsername = '';
   double? pageOffset = 0;
+  bool lockFlag = false;
 
   @override
   void initState() {
@@ -91,15 +92,43 @@ class _EditPageState extends State<EditPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              ComTextField(
-                labelText: sHintAlbum,
-                controller: albumNameController,
-                maxLength: 20,
+              Container(
+                margin: EdgeInsets.only(left: 2,right: 2),
+                child: ComTextField(
+                  labelText: sHintAlbum,
+                  controller: albumNameController,
+                  maxLength: 20,
+                ),
               ),
-              ComTextField(
-                labelText: sHintNote,
-                controller: noteController,
-                maxLength: 50,
+              Container(
+                margin: EdgeInsets.only(left: 2,right: 2),
+                child: ComTextField(
+                  labelText: sHintNote,
+                  controller: noteController,
+                  maxLength: 50,
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  setLock();
+                },
+                radius: dIconSize / 2,
+                splashColor: colorClick,
+                child: lockFlag
+                    ? Image.asset(
+                  imageLock,
+                  width: dButtonSize,
+                  height: dButtonSize,
+                  fit: BoxFit.cover,
+                  color: colorButton,
+                )
+                    : Image.asset(
+                  imageUnLock,
+                  width: dButtonSize,
+                  height: dButtonSize,
+                  fit: BoxFit.cover,
+                  color: colorButton,
+                ),
               ),
               SizedBox(
                 width: screenWidth * 100,
@@ -327,11 +356,13 @@ class _EditPageState extends State<EditPage> {
         headerMap: headerAlbum);
     if (backAlbum.isNotEmpty) {
       LogData().d(tag, 'back.isNotEmpty');
+      int status = statusPublic;
+      if(lockFlag) status = statusPrivate;
       AlbumList albumList = AlbumList(
           album_name: albumName,
           username: localUsername,
           id: id,
-          status: statusPublic,
+          status: status,
           kind: sEmpty);
       String jsonAlbumList = jsonEncode(albumList);
       LogData().dd(tag, 'jsonAlbumList', jsonAlbumList);
@@ -395,5 +426,11 @@ class _EditPageState extends State<EditPage> {
   Future initialData() async {
     localUsername = MyApp.localUser;
     LogData().dd(tag, "localUsername", localUsername);
+  }
+
+  void setLock() {
+    lockFlag = !lockFlag;
+    setState(() {
+    });
   }
 }

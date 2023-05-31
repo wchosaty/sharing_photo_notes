@@ -89,7 +89,7 @@ class _PersonalPageState extends State<PersonalPage> {
                                         width: width * 100,
                                         height: 40,
                                         child: Container(
-                                          margin: EdgeInsets.only(top: height * 0.005,left: width * 0.3 ),
+                                          margin: EdgeInsets.only(top: height * 0.005,left: width * 0.3),
                                           child: Text(albumLists[i].album_name,
                                               style: const TextStyle(
                                                 letterSpacing: 1.5,
@@ -99,6 +99,11 @@ class _PersonalPageState extends State<PersonalPage> {
                                               )),
                                         ),
                                       ),
+                                      Container(
+                                          margin: EdgeInsets.only(left: width * 0.1),
+                                        child: albumLists[i].status == statusPrivate ?
+                                        Image.asset(imageLock, width: dButtonSize, height: dButtonSize, fit: BoxFit.cover, color: colorButton,)
+                                            : SizedBox(width: 0,height: 0,)),
                                     ],
                                   ),
                                 ),
